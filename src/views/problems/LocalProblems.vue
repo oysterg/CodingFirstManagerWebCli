@@ -1,23 +1,38 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="problemsQuery.title" placeholder="标题" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="problemsQuery.difficulty" placeholder="难度" filterable clearable class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in difficultyOptions"
-          :key="item"
-          :value="item">
-        </el-option>
+      <el-input
+        v-model="problemsQuery.title"
+        placeholder="标题"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-select
+        v-model="problemsQuery.difficulty"
+        placeholder="难度"
+        filterable
+        clearable
+        class="filter-item"
+        style="width: 130px"
+      >
+        <el-option v-for="item in difficultyOptions" :key="item" :value="item" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        搜索
-      </el-button>
-      <el-button v-waves class="filter-item" type="primary" @click="clearFilter">
-        查看所有
-      </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleCreate">
-        添加题目
-      </el-button>`
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >搜索</el-button>
+      <el-button v-waves class="filter-item" type="primary" @click="clearFilter">查看所有</el-button>
+      <el-button
+        class="filter-item"
+        style="margin-left: 10px;"
+        type="primary"
+        icon="el-icon-edit"
+        @click="handleCreate"
+      >添加题目</el-button>`
     </div>
 
     <el-table
@@ -34,7 +49,7 @@
           <span>{{ row.problemID }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" width="590" align="center">
+      <el-table-column label="标题" width="430" align="center">
         <template slot-scope="{row}">
           <el-link type="primary" @click="goProblemDetail(row)">{{ row.title }}</el-link>
         </template>
@@ -46,9 +61,11 @@
       </el-table-column>
       <el-table-column label="难度" width="120" align="center">
         <template slot-scope="{row}">
-          <el-button size="mini" :type="row.difficulty==='简单'?'success': row.difficulty==='中等'? 'warning':'danger'" plain>
-            {{ row.difficulty }}
-          </el-button>
+          <el-button
+            size="mini"
+            :type="row.difficulty==='简单'?'success': row.difficulty==='中等'? 'warning':'danger'"
+            plain
+          >{{ row.difficulty }}</el-button>
         </template>
       </el-table-column>
       <el-table-column label="来源" width="140" align="center">
@@ -63,30 +80,31 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
         <template slot-scope="{row,$index}">
-          <el-button size="mini" type="primary" @click="handleUpdate(row)">
-            修改
-          </el-button>
-          <el-button size="mini" type="danger" @click="currentRow = row, currentIndex = $index, dialogVisible = true">
-            删除
-          </el-button>
+          <el-button size="mini" type="primary" @click="handleUpdate(row)">修改</el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            @click="currentRow = row, currentIndex = $index, dialogVisible = true"
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="problemsQuery.page" :limit.sync="problemsQuery.limit" @pagination="getProblems" />
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="problemsQuery.page"
+      :limit.sync="problemsQuery.limit"
+      @pagination="getProblems"
+    />
 
-    <el-dialog
-      title="提示"
-      :visible.sync="dialogVisible"
-      width="30%"
-    >
+    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
       <span>确定删除本题目？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">否</el-button>
         <el-button type="primary" @click="deleteProblem">是</el-button>
       </span>
     </el-dialog>
-
   </div>
 </template>
 
@@ -122,8 +140,7 @@ export default {
         sort: '+id'
       },
       difficultyOptions: ['简单', '中等', '困难'],
-      rules: {
-      }
+      rules: {}
     }
   },
   created() {
@@ -186,10 +203,12 @@ export default {
       }
       this.handleFilter()
     },
-    handleCreate() {
-    },
+    handleCreate() {},
     handleUpdate(row) {
-      this.$router.push({ path: '/problems/EditProblems', query: { id: row.problemID }})
+      this.$router.push({
+        path: '/problems/EditProblems',
+        query: { id: row.problemID }
+      })
     },
     deleteProblem() {
       this.dialogVisible = false
@@ -209,7 +228,10 @@ export default {
       })
     },
     goProblemDetail(row) {
-      this.$router.push({ path: '/problems/ProblemDetail', query: { id: row.problemID }})
+      this.$router.push({
+        path: '/problems/ProblemDetail',
+        query: { id: row.problemID }
+      })
     }
   }
 }

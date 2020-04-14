@@ -1,7 +1,7 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="userQuery.userNameOrNickName" placeholder="用户名/昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="userQuery.usernameOrNickName" placeholder="用户名/昵称" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
@@ -21,17 +21,17 @@
     >
       <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.userID }}</span>
+          <span>{{ row.id }}</span>
         </template>
       </el-table-column>
       <el-table-column label="用户名" width="120" align="center">
         <template slot-scope="{row}">
-          <el-link type="primary" @click="getUserDetail(row)">{{ row.userName }}</el-link>
+          <el-link type="primary" @click="getUserDetail(row)">{{ row.username }}</el-link>
         </template>
       </el-table-column>
       <el-table-column label="昵称" width="120" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.nickName }}</span>
+          <span>{{ row.nickname }}</span>
         </template>
       </el-table-column>
       <el-table-column label="Moto" width="350" align="center">
@@ -86,11 +86,11 @@
 
     <el-dialog title="奖励ACB" :visible.sync="rewardACBDialogVisible">
       <el-form ref="rewardACB" :model="rewardACBTemp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
-        <el-form-item label="用户ID" prop="userID">
-          <span>{{ rewardACBTemp.userID }}</span>
+        <el-form-item label="用户ID" prop="id">
+          <span>{{ rewardACBTemp.id }}</span>
         </el-form-item>
-        <el-form-item label="用户名" prop="userName">
-          <span>{{ rewardACBTemp.userName }}</span>
+        <el-form-item label="用户名" prop="username">
+          <span>{{ rewardACBTemp.username }}</span>
         </el-form-item>
         <el-form-item label="ACB" prop="ACB">
           <el-input-number v-model="rewardACBTemp.ACB" :min="1" />
@@ -143,11 +143,11 @@ export default {
         page: 1,
         limit: 20,
         sort: '+id',
-        userNameOrNickName: undefined
+        usernameOrNickname: undefined
       },
       rewardACBTemp: {
-        userID: '',
-        userName: '',
+        id: '',
+        username: '',
         ACB: '200'
       }
     }
@@ -176,7 +176,7 @@ export default {
         page: 1,
         limit: 20,
         sort: '+id',
-        userNameOrNickName: undefined
+        usernameOrNickname: undefined
       }
       this.getUsers()
     },
@@ -203,8 +203,8 @@ export default {
     },
     resetTemp() {
       this.temp = {
-        userID: '',
-        userName: '',
+        id: '',
+        username: '',
         ACB: '200'
       }
     },
@@ -212,8 +212,8 @@ export default {
       this.resetTemp()
       this.rewardACBDialogVisible = true
       this.currentRow = row
-      this.rewardACBTemp.userID = row.userID
-      this.rewardACBTemp.userName = row.userName
+      this.rewardACBTemp.id = row.id
+      this.rewardACBTemp.username = row.username
       this.$nextTick(() => {
         this.$refs['rewardACB'].clearValidate()
       })
@@ -253,10 +253,10 @@ export default {
       })
     },
     getUserTitle(row) {
-      this.$router.push({ path: '/user/userTitle', query: { id: row.userID, name: row.userName}})
+      this.$router.push({ path: '/user/userTitle', query: { id: row.id, name: row.username }})
     },
     getUserDetail(row) {
-      this.$router.push({ path: '/user/userDetail', query: { id: row.userID }})
+      this.$router.push({ path: '/user/userDetail', query: { id: row.id }})
     }
   }
 }

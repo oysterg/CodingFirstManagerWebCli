@@ -1,7 +1,6 @@
 import Mock from 'mockjs'
 import { param2Obj } from '../src/utils'
 
-import admin from './admin'
 import role from './role'
 import problems from './problems'
 import tags from './tags'
@@ -18,7 +17,6 @@ import article from './article'
 import search from './remote-search'
 
 const mocks = [
-  ...admin,
   ...role,
   ...problems,
   ...tags,

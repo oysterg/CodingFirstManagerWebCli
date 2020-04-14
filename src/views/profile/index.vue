@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
-    <div v-if="admin">
+    <div v-if="user">
       <el-row :gutter="20">
 
         <el-col :span="6" :xs="24">
-          <user-card :admin="admin" />
+          <user-card :user="user" />
         </el-col>
 
         <el-col :span="18" :xs="24">
@@ -17,7 +17,7 @@
                 <timeline />
               </el-tab-pane>
               <el-tab-pane label="Account" name="account">
-                <account :admin="admin" />
+                <account :user="user" />
               </el-tab-pane>
             </el-tabs>
           </el-card>
@@ -40,7 +40,7 @@ export default {
   components: { UserCard, Activity, Timeline, Account },
   data() {
     return {
-      admin: {},
+      user: {},
       activeTab: 'activity'
     }
   },
@@ -52,11 +52,11 @@ export default {
     ])
   },
   created() {
-    this.getAdmin()
+    this.getUser()
   },
   methods: {
-    getAdmin() {
-      this.admin = {
+    getUser() {
+      this.user = {
         name: this.name,
         role: this.roles.join(' | '),
         email: 'admin@test.com',

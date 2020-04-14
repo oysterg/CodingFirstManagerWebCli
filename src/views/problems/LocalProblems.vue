@@ -49,7 +49,7 @@
           <span>{{ row.problemID }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" width="430" align="center">
+      <el-table-column label="标题" width="590" align="center">
         <template slot-scope="{row}">
           <el-link type="primary" @click="goProblemDetail(row)">{{ row.title }}</el-link>
         </template>

@@ -23,3 +23,19 @@ export function createContest(data) {
     data
   })
 }
+
+export function fetchContestReviews(query) {
+  return request({
+    url: '/contest/review/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updateReview(data) {
+  return request({
+    url: '/contest/review/update',
+    method: 'put',
+    data
+  })
+}

@@ -299,9 +299,9 @@ export const asyncRoutes = [
         meta: { title: '自定义赛', noCache: true }
       },
       {
-        path: 'VerifySignUp',
-        component: () => import('@/views/contest/VerifySignUp'),
-        name: 'VerifySignUp',
+        path: 'RegisterReview',
+        component: () => import('@/views/contest/RegisterReview'),
+        name: 'RegisterReview',
         meta: { title: '报名审核', noCache: true }
       },
       {

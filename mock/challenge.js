@@ -2,13 +2,16 @@ import Mock from 'mockjs'
 
 const challengeList = []
 const count = 100
-const blockType = ['其他、不显示在奖项列表中', 'ACM省赛', 'ACM/ICPC区域赛', 'EC-Final', '世界总决赛', '全国蓝桥杯大赛', 'ACM全国邀请赛', '全国大学生程序设计竞赛']
+const blockType = ['基础', '几何', '图论', '数学', '数据结构', '搜索', '动态规划']
+
 for (let i = 0; i < count; i++) {
   challengeList.push(Mock.mock({
-    ID: '@increment',
+    id: '@increment',
     name: '@name',
     blockType: Mock.Random.pick(blockType),
-    description: '@paragraph'
+    description: '@ctitle',
+    preUnlockNum: Mock.mock('@natural(1,4)'),
+    preUnlockScore: Mock.mock('@natural(3,15)')
   }))
 }
 
@@ -17,9 +20,8 @@ export default [
     url: '/challenge/list',
     type: 'get',
     response: config => {
-      const { name, type, page = 1, limit = 20, sort } = config.query
+      const { name, page = 1, limit = 0, sort } = config.query
       let mockList = challengeList.filter(item => {
-        if (type && item.type !== type) return false
         if (name && item.name.indexOf(name) < 0) return false
         return true
       })

@@ -368,14 +368,25 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/',
+    path: '/challenge',
     component: Layout,
+    name: 'Challenge',
+    meta: {
+      title: '挑战管理',
+      icon: 'star'
+    },
     children: [
       {
-        path: 'Challenge',
+        path: 'ChallengeList',
         component: () => import('@/views/challenge/ChallengeList'),
-        name: 'Challenge',
-        meta: { title: '挑战管理', icon: 'star' }
+        name: 'ChallengeList',
+        meta: { title: '挑战列表', noCache: true }
+      },
+      {
+        path: 'AddChallenge',
+        component: () => import('@/views/challenge/AddChallenge'),
+        name: 'AddChallenge',
+        meta: { title: '添加挑战', noCache: true }
       }
     ]
   },

@@ -85,7 +85,8 @@
             size="mini"
             type="danger"
             @click="currentRow = row, currentIndex = $index, dialogVisible = true"
-          >删除</el-button>
+          >删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>

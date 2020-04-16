@@ -2,6 +2,13 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="reviewQuery.title" placeholder="用户名" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-select v-model="reviewQuery.contestKind" placeholder="比赛类型" filterable clearable class="filter-item" style="width: 130px">
+        <el-option
+          v-for="item in contestKindOptions"
+          :key="item"
+          :value="item"
+        />
+      </el-select>
       <el-select v-model="reviewQuery.reviewStatus" placeholder="审核状态" filterable clearable class="filter-item" style="width: 130px">
         <el-option
           v-for="item in reviewStatusOptions"
@@ -30,7 +37,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" width="490" align="center">
+      <el-table-column label="比赛名称" width="490" align="center">
         <template slot-scope="{row}">
           <span>{{ row.title }}</span>
         </template>
@@ -86,6 +93,7 @@ export default {
       currentRow: '',
       currentIndex: '',
       reviewStatusOptions: ['还未审核', '审核失败', '审核通过'],
+      contestKindOptions: ['练习', '积分', '趣味', '正式', '隐藏', '自定义'],
       dialogVisible: false,
       reviews: null,
       total: 0,

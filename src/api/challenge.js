@@ -8,6 +8,14 @@ export function fetchChallengeList(query) {
   })
 }
 
+export function fetchChallenge(id) {
+  return request({
+    url: '/challenge/detail',
+    method: 'get',
+    params: { id }
+  })
+}
+
 export function createChallenge(data) {
   return request({
     url: '/challenge/create',

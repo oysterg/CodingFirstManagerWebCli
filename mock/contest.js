@@ -39,7 +39,7 @@ for (let i = 0; i < count; i++) {
   contestReviewList.push(Mock.mock({
     id: '@increment',
     contestID: '@increment',
-    contestKind: '',
+    contestKind: Mock.Random.pick(kind),
     title: '@ctitle',
     username: '@name',
     nickname: '@name',

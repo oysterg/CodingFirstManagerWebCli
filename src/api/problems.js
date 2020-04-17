@@ -8,6 +8,14 @@ export function fetchProblemList(query) {
   })
 }
 
+export function fetchTempProblemList(query) {
+  return request({
+    url: '/problems/temp/list',
+    method: 'get',
+    params: query
+  })
+}
+
 export function fetchProblem(id) {
   return request({
     url: '/problems/detail',

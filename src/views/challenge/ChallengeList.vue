@@ -82,11 +82,45 @@
       </span>
     </el-dialog>
 
+    <el-dialog
+      title="题目列表"
+      :visible.sync="problemDialogVisible"
+      width="55%"
+    >
+      <el-table
+        v-loading="listLoading"
+        :data="challengeProblems"
+        fit
+        highlight-current-row
+      >
+        <el-table-column label="顺序" align="center" width="80">
+          <template slot-scope="{row}">
+            <span>{{ row.problemOrder }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="题目ID" width="80" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.problemID }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="标题" width="600" align="center">
+          <template slot-scope="{row}">
+            <el-link type="primary">{{ row.title }}</el-link>
+          </template>
+        </el-table-column>
+        <el-table-column label="积分" width="80" align="center">
+          <template slot-scope="{row}">
+            <span>{{ row.score }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
   </div>
 </template>
 
 <script>
-import { fetchChallengeList, deleteChallenge, updateChallenge } from '@/api/challenge'
+import { fetchChallengeList, deleteChallenge, updateChallenge, fetchChallengeProblems } from '@/api/challenge'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
 
@@ -99,6 +133,7 @@ export default {
       currentRow: '',
       currentIndex: '',
       challenges: null,
+      challengeProblems: null,
       total: 0,
       listLoading: true,
       challengeQuery: {
@@ -107,7 +142,7 @@ export default {
         sort: '+id',
         name: undefined
       },
-      dialogVisible: false,
+      problemDialogVisible: false,
       deleteDialogVisible: false
     }
   },
@@ -160,39 +195,31 @@ export default {
       }
       this.handleFilter()
     },
+    getChallengeProblems(row) {
+      this.listLoading = true
+      const problemQuery = {
+        blockID: row.id
+      }
+      console.log(problemQuery.blockID)
+      fetchChallengeProblems(problemQuery).then(response => {
+        const res = response.data
+        this.challengeProblems = res.data.list
+        console.log(this.challengeProblems)
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
+      this.problemDialogVisible = true
+    },
     handleCreate() {
       this.$router.push({
         path: '/challenge/AddChallenge'
       })
     },
-    handleUpdate(row, index) {
+    handleUpdate(row) {
       this.$router.push({
         path: '/challenge/UpdateChallenge',
         query: { id: row.id }
-      })
-    },
-    updateChallenge() {
-      this.$refs['dataForm'].validate((valid) => {
-        if (valid) {
-          this.temp.id = this.currentRow.id
-          this.temp.tagID = this.currentRow.tagID
-          this.temp.userName = this.currentRow.userName
-          this.temp.time = this.currentRow.time
-          updateChallenge(this.temp).then(response => {
-            const index = this.challenges.findIndex(v => v.tagID === this.temp.tagID)
-            this.challenges.splice(index, 1, this.temp)
-            this.dialogVisible = false
-            const res = response.data
-            if (res.code === 10000) {
-              this.$message({
-                title: '成功',
-                message: '修改成功',
-                type: 'success',
-                duration: 2000
-              })
-            }
-          })
-        }
       })
     },
     handleDelete() {

@@ -130,12 +130,13 @@
 
 <script>
 
-import { fetchChallengeList, createChallenge } from '@/api/challenge'
+import { fetchChallengeList, createChallenge, fetchChallenge } from '@/api/challenge'
 import { fetchProblemList } from '@/api/problems'
 import Tinymce from '@/components/Tinymce'
+import { updateChallenge } from '../../api/challenge'
 
 export default {
-  name: 'AddChallenge',
+  name: 'UpdateChallenge',
   components: { Tinymce },
   data() {
     return {
@@ -156,10 +157,9 @@ export default {
         score: ''
       },
       challengeInfo: {
-        id: '',
         name: '',
         description: '',
-        blockType: '基础',
+        blockType: '',
         preConditionBlock: [],
         problems: []
       },
@@ -173,8 +173,22 @@ export default {
   created() {
     this.getProblemList()
     this.getChallengeList()
+    this.getChallengeDetail()
   },
   methods: {
+    getChallengeDetail() {
+      const challengeQuery = {
+        blockID: this.$route.query.id
+      }
+      this.listLoading = true
+      fetchChallenge(challengeQuery).then(response => {
+        const res = response.data
+        this.challengeInfo = res.data.list
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
+    },
     getProblemList() {
       this.listLoading = true
       fetchProblemList().then(response => {
@@ -258,25 +272,16 @@ export default {
     removePreCondition(index) { // 移除前置条件
       this.challengeInfo.preConditionBlock.splice(index, 1)
     },
-    createChallenge() {
-      this.$refs.challengeInfo.validate(valid => {
-        if (valid) {
-          this.listLoading = true
-          createChallenge(this.challengeInfo).then(response => {
-            const res = response.data
-            if (res.code === 10000) {
-              this.$message({
-                title: '成功',
-                message: '创建成功',
-                type: 'success',
-                duration: 2000
-              })
-            }
-            this.goBack()
+    updateChallenge() {
+      updateChallenge(this.challengeInfo.id).then(response => {
+        const res = response.data
+        if (res.code === 10000) {
+          this.$message({
+            title: '成功',
+            message: '修改成功',
+            type: 'success',
+            duration: 2000
           })
-        } else {
-          console.log('提交错误!!')
-          return false
         }
       })
     },

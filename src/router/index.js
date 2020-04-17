@@ -176,6 +176,56 @@ export const asyncRoutes = [
   },
 
   /** 路由表过长可以把它们分割成小模块 **/
+  // add by axiang [2020/4/17] 题目爬取模块
+  {
+    path: '/scrapy',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'Scrapy',
+    meta: {
+      title: '题目爬取',
+      icon: 'international'
+    },
+    children: [
+      {
+        path: 'GetProblems',
+        component: () => import('@/views/scrapy/GetProblems'),
+        name: 'GetProblems',
+        meta: { title: '爬取题目', noCache: true }
+      },
+      {
+        path: 'SimProblem',
+        component: () => import('@/views/scrapy/SimProblem'),
+        name: 'SimProblem',
+        meta: { title: '题目查重', noCache: true }
+      }
+    ]
+  },
+  // add by axiang [2020/4/17] 爬虫管理
+  {
+    path: '/scrapyManager',
+    component: Layout,
+    redirect: 'noRedirect',
+    name: 'ScrapyManager',
+    meta: {
+      title: '爬虫管理',
+      icon: 'nested'
+    },
+    children: [
+      {
+        path: 'QueryScrapy',
+        component: () => import('@/views/scrapy-manager/QueryScrapy'),
+        name: 'QueryScrapy',
+        meta: { title: '爬虫状态查询', noCache: true }
+      },
+      {
+        path: 'SetScrapy',
+        component: () => import('@/views/scrapy-manager/SetScrapy'),
+        name: 'SetScrapy',
+        meta: { title: '爬虫任务设置', noCache: true }
+      }
+    ]
+  },
   {
     path: '/problems',
     component: Layout,
@@ -193,10 +243,16 @@ export const asyncRoutes = [
         meta: { title: '本地题库', noCache: true }
       },
       {
+        path: 'TempProblems',
+        component: () => import('@/views/problems/TempProblems'),
+        name: 'TempProblems',
+        meta: { title: '爬取暂存题库', noCache: true }
+      },
+      {
         path: 'VJProblems',
         component: () => import('@/views/problems/VJProblems'),
         name: 'VJProblems',
-        meta: { title: 'Vitual Judge题库', noCache: true }
+        meta: { title: 'VJ缓存题库', noCache: true }
       },
       {
         path: 'ProblemsTag',
@@ -419,6 +475,12 @@ export const asyncRoutes = [
     },
     children: [
       {
+        path: 'SystemSetting',
+        component: () => import('@/views/system/SystemSetting'),
+        name: 'SystemSetting',
+        meta: { title: '系统设置', noCache: true }
+      },
+      {
         path: 'AddNotice',
         component: () => import('@/views/system/AddNotice'),
         name: 'AddNotice',
@@ -434,11 +496,12 @@ export const asyncRoutes = [
   }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 

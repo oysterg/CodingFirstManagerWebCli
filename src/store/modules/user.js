@@ -4,7 +4,7 @@ import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '',
+  name: localStorage.getItem('username'),
   avatar: '',
   roles: []
 }
@@ -37,6 +37,7 @@ const actions = {
         commit('setToken', token)
         commit('setAvatar', avatar)
         setToken(token)
+        localStorage.setItem('username', name)
         resolve()
       }).catch(error => {
         reject(error)
@@ -53,8 +54,9 @@ const actions = {
         }
         const roles = 'superAdmin'
         // const userBaseInfo = datas[0]
-        // const userCommonInfo = datas[1]
+        const userCommonInfo = datas[1]
         commit('setRoles', roles)
+        commit('setAvatar', userCommonInfo.avatarUrl)
         resolve(roles)
       }).catch(error => {
         reject(error)

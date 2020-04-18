@@ -131,14 +131,12 @@ export default {
       problemsQuery: {
         page: 1,
         limit: 20,
-        sort: '+id',
         title: undefined,
         difficulty: undefined
       },
       tagsQuery: {
         page: 1,
-        limit: 100,
-        sort: '+id'
+        limit: 100
       },
       difficultyOptions: ['简单', '中等', '困难'],
       rules: {}
@@ -146,7 +144,6 @@ export default {
   },
   created() {
     this.getProblems()
-    this.getTags()
   },
   methods: {
     getProblems() {

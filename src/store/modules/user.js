@@ -29,10 +29,10 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username, password: password }).then(response => {
-        const { data } = response.data
-        const name = data[0]
-        const token = data[1]
-        const avatar = data[2].avatarUrl
+        const { datas } = response.data
+        const name = datas[0]
+        const token = datas[1]
+        const avatar = datas[2].avatarUrl
         commit('setName', name)
         commit('setToken', token)
         commit('setAvatar', avatar)
@@ -46,19 +46,16 @@ const actions = {
 
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response.data
-
-        if (!data) {
+      getInfo({ username: state.name }).then(response => {
+        const { datas } = response.data
+        if (!datas) {
           reject('认证失败, 请重新登录')
         }
-        const name = data.name
-        const avatar = data.avatarUrl
-        const roles = data.roles
+        const roles = 'superAdmin'
+        // const userBaseInfo = datas[0]
+        // const userCommonInfo = datas[1]
         commit('setRoles', roles)
-        commit('setName', name)
-        commit('setAvatar', avatar)
-        resolve(data)
+        resolve(roles)
       }).catch(error => {
         reject(error)
       })
@@ -67,7 +64,7 @@ const actions = {
 
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
-      logout(state.token).then(() => {
+      logout({ username: state.name }).then(() => {
         commit('setToken', '')
         commit('setRoles', [])
         removeToken()

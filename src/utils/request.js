@@ -6,8 +6,8 @@ import Router from '../router/index'
 
 // create an axios instance
 const service = axios.create({
-  baseURL: '/dev-api', // url = base url + request url
-  // baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: process.env.VUE_APP_BASE_API,
+  // baseUrl: '/dev-api'
   // withCredentials: true, // send cookies when cross-domain requests
   timeout: 5000 // request timeout
 })

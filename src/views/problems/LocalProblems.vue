@@ -46,7 +46,7 @@
     >
       <el-table-column label="ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.problemID }}</span>
+          <span>{{ row.problemId }}</span>
         </template>
       </el-table-column>
       <el-table-column label="标题" width="590" align="center">
@@ -70,7 +70,7 @@
       </el-table-column>
       <el-table-column label="来源" width="140" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.belongOJ }}</span>
+          <span>{{ row.belongOj }}</span>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="120" align="center">

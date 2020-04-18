@@ -443,6 +443,13 @@ export const asyncRoutes = [
         component: () => import('@/views/challenge/AddChallenge'),
         name: 'AddChallenge',
         meta: { title: '添加挑战', noCache: true }
+      },
+      {
+        path: 'UpdateChallenge',
+        component: () => import('@/views/challenge/UpdateChallenge'),
+        name: 'UpdateChallenge',
+        meta: { title: '修改挑战', noCache: true },
+        hidden: true
       }
     ]
   },

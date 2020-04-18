@@ -39,3 +39,11 @@ export function deleteChallenge(id) {
     params: { id }
   })
 }
+
+export function fetchChallengeProblems(query) {
+  return request({
+    url: '/challenge/problem/list',
+    method: 'get',
+    params: query
+  })
+}

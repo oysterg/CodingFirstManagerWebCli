@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MessageBox, Message } from 'element-ui'
+import { MessageBox, Message, Notification } from 'element-ui'
 import store from '@/store'
 import { getToken } from '@/utils/auth'
 import Router from '../router/index'
@@ -9,7 +9,7 @@ const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_API,
   // baseUrl: '/dev-api'
   // withCredentials: true, // send cookies when cross-domain requests
-  timeout: 5000 // request timeout
+  timeout: 15000 // request timeout
 })
 
 // request interceptor
@@ -33,8 +33,7 @@ service.interceptors.request.use(
 
 // response interceptor
 service.interceptors.response.use(
-  response => {
-    const res = response
+  res => {
     if (res.data.code === 10001) {
       Notification.error({
         title: '资源不存在',
@@ -44,10 +43,14 @@ service.interceptors.response.use(
         showClose: false,
         message: '请求的资源不存在'
       })
-      Message({
-        message: '资源不存在',
-        type: 'error',
-        duration: 5 * 1000
+    } else if (res.data.code === 10005) {
+      Notification.error({
+        title: '验证码过期',
+        duration: 5000,
+        position: 'top-left',
+        offset: 40,
+        showClose: false,
+        message: '验证码过期，请重新获取'
       })
     } else if (res.data.code === 20001) {
       Notification.error({
@@ -108,12 +111,19 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
-    Message({
-      message: error.message,
-      type: 'error',
-      duration: 5 * 1000
-    })
+    if (
+      String(error)
+        .toLowerCase()
+        .indexOf('timeout') !== -1
+    ) {
+      Message.error('服务器繁忙，请稍后重试！')
+    } else if (error.response.status === 404) {
+      Message.error('服务器好像挂了，要不等等试试')
+    } else if (error.response.status === 500) {
+      Message.error('服务器内部错误！错误原因：' + error.response.data.msg)
+    } else {
+      Message.error(error.response.data.msg)
+    }
     return Promise.reject(error)
   }
 )

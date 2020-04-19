@@ -16,7 +16,7 @@
         class="filter-item"
         style="width: 130px"
       >
-        <el-option v-for="item in difficultyOptions" :key="item" :value="item" />
+        <el-option v-for="item in difficultyOptions" :key="item.name" :label="item.name" :value="item.value" />
       </el-select>
       <el-button
         v-waves
@@ -38,7 +38,6 @@
     <el-table
       v-loading="listLoading"
       :data="problems"
-      border
       fit
       highlight-current-row
       style="width: 98%;"
@@ -75,7 +74,7 @@
       </el-table-column>
       <el-table-column label="状态" width="120" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.visible }}</span>
+          <span>{{ row.visible === 1 ? '显示' : '隐藏' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
@@ -138,7 +137,20 @@ export default {
         page: 1,
         limit: 100
       },
-      difficultyOptions: ['简单', '中等', '困难'],
+      difficultyOptions: [
+        {
+          value: 1,
+          name: '简单'
+        },
+        {
+          value: 2,
+          name: '中等'
+        },
+        {
+          value: 3,
+          name: '困难'
+        }
+      ],
       rules: {}
     }
   },
@@ -150,8 +162,8 @@ export default {
       this.listLoading = true
       fetchProblemList(this.problemsQuery).then(response => {
         const res = response.data
-        this.problems = res.data.list
-        this.total = res.data.total
+        this.problems = res.datas[0]
+        this.total = res.datas[1]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -174,7 +186,6 @@ export default {
       this.problemsQuery = {
         page: 1,
         limit: 20,
-        sort: '+id',
         title: undefined,
         difficulty: undefined
       }
@@ -205,14 +216,14 @@ export default {
     handleUpdate(row) {
       this.$router.push({
         path: '/problems/EditProblems',
-        query: { id: row.problemID }
+        query: { id: row.problemId }
       })
     },
     deleteProblem() {
       this.dialogVisible = false
       const row = this.currentRow
       const index = this.currentIndex
-      deleteProblem(row.problemID).then(response => {
+      deleteProblem(row.problemId).then(response => {
         const res = response.data
         if (res.code === 10000) {
           this.$notify({
@@ -228,7 +239,7 @@ export default {
     goProblemDetail(row) {
       this.$router.push({
         path: '/problems/ProblemDetail',
-        query: { id: row.problemID }
+        query: { id: row.problemId }
       })
     }
   }

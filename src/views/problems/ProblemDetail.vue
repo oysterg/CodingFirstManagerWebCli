@@ -4,16 +4,16 @@
       <div class="problem-basic">
         <div class="title">
           <h1>{{ problemInfo.title }}</h1>
-          <p>TimeLimit:{{ problemInfo.timeLimit }}</p>
-          <p>MemoryLimit:{{ problemInfo.memoryLimit }}</p>
+          <p>TimeLimit:{{ problemView.timeLimit }}</p>
+          <p>MemoryLimit:{{ problemView.memoryLimit }}</p>
           <p>64-bit integer IO format:
-            <el-button type="info" size="mini">{{ problemInfo.intFormat }}</el-button>
+            <el-button type="info" size="mini">{{ problemView.intFormat }}</el-button>
           </p>
         </div>
         <div class="info">
-          <span class="mark">已有{{ problemInfo.mark }}人收藏此题</span>
+          <span class="mark">已有{{ totalStar ? totalStar : 0 }}人收藏此题</span>
           <span class="tag">标签数
-            <el-link type="primary" @click="goTagsDetail(problemInfo)">{{ problemInfo.tag }}</el-link>
+            <el-link type="primary" @click="goTagsDetail(problemInfo)">{{ totalTag ? totalTag : 0 }}</el-link>
           </span>
         </div>
       </div>
@@ -25,7 +25,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemInfo.description"
+              v-html="problemView.description"
             />
           </el-card>
           <el-card class="box-card">
@@ -34,7 +34,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemInfo.input"
+              v-html="problemView.input"
             />
           </el-card>
           <el-card class="box-card">
@@ -43,7 +43,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemInfo.output"
+              v-html="problemView.output"
             />
           </el-card>
           <el-card class="box-card">
@@ -52,7 +52,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemInfo.inputCase"
+              v-html="problemSample.inputCase"
             />
           </el-card>
           <el-card class="box-card">
@@ -61,7 +61,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemInfo.outputCase"
+              v-html="problemSample.outputCase"
             />
           </el-card>
         </div>
@@ -101,37 +101,27 @@ export default {
   name: 'EditProblems',
   data() {
     return {
-      problemInfo: {
-        title: '',
-        mark: '',
-        tag: '',
-        totalAc: '',
-        totalAcUser: '',
-        totalSubmit: '',
-        totalSubmitUser: '',
-        timeLimit: '',
-        memoryLimit: '',
-        intFormat: '',
-        spj: '',
-        description: '',
-        input: '',
-        output: '',
-        inputCase: '',
-        outputCase: '',
-        hint: ''
-      }
+      problemInfo: '',
+      problemView: '',
+      problemSample: null,
+      totalStar: '',
+      totalTag: ''
     }
   },
   created() {
-    this.getProblemDetail()
+    this.getProblemInfo()
   },
   methods: {
-    getProblemDetail() {
+    getProblemInfo() {
       this.listLoading = true
-      const id = this.$route.query.id
-      fetchProblem(id).then(response => {
+      const problemId = this.$route.query.id
+      fetchProblem(problemId).then(response => {
         const res = response.data
-        this.problemInfo = res.data
+        this.problemInfo = res.datas[0]
+        this.problemView = res.datas[1]
+        this.problemSample = res.datas[2]
+        this.totalStar = res.datas[3]
+        this.totalTag = res.datas[4]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)

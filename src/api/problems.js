@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchProblemList(query) {
   return request({
-    url: '/problems/list',
+    url: '/admin/problems/list',
     method: 'get',
     params: query
   })
@@ -16,11 +16,11 @@ export function fetchTempProblemList(query) {
   })
 }
 
-export function fetchProblem(id) {
+export function fetchProblem(problemId) {
   return request({
-    url: '/problems/detail',
+    url: '/admin/problems/info',
     method: 'get',
-    params: { id }
+    params: { problemId }
   })
 }
 
@@ -28,21 +28,21 @@ export function createProblem(data) {
   return request({
     url: '/problems/create',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function updateProblem(data) {
   return request({
-    url: '/problems/update',
+    url: '/admin/problems/update',
     method: 'put',
-    data
+    params: data
   })
 }
 
 export function deleteProblem(id) {
   return request({
-    url: '/problems/delete',
+    url: '/admin/problems/delete',
     method: 'delete',
     params: { id }
   })
@@ -50,7 +50,7 @@ export function deleteProblem(id) {
 
 export function fetchVJProblemList(query) {
   return request({
-    url: '/problems/vj/list',
+    url: '/admin/problems/vj/list',
     method: 'get',
     params: query
   })

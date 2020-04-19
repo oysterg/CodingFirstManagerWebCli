@@ -1,27 +1,41 @@
 <template>
   <div class="app-container">
     <div class="filter-container">
-      <el-input v-model="contestsQuery.title" placeholder="标题" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="contestsQuery.permission" placeholder="权限" filterable clearable class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in permissionOptions"
-          :key="item"
-          :value="item"
-        />
+      <el-input
+        v-model="contestsQuery.title"
+        placeholder="标题"
+        style="width: 200px;"
+        class="filter-item"
+        @keyup.enter.native="handleFilter"
+      />
+      <el-select
+        v-model="contestsQuery.permission"
+        placeholder="权限"
+        filterable
+        clearable
+        class="filter-item"
+        style="width: 130px"
+      >
+        <el-option v-for="item in permissionOptions" :key="item" :value="item" />
       </el-select>
-      <el-select v-model="contestsQuery.status" placeholder="状态" filterable clearable class="filter-item" style="width: 130px">
-        <el-option
-          v-for="item in statusOptions"
-          :key="item"
-          :value="item"
-        />
+      <el-select
+        v-model="contestsQuery.status"
+        placeholder="状态"
+        filterable
+        clearable
+        class="filter-item"
+        style="width: 130px"
+      >
+        <el-option v-for="item in statusOptions" :key="item" :value="item" />
       </el-select>
-      <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
-        搜索
-      </el-button>
-      <el-button v-waves class="filter-item" type="primary" @click="clearFilter">
-        查看所有
-      </el-button>
+      <el-button
+        v-waves
+        class="filter-item"
+        type="primary"
+        icon="el-icon-search"
+        @click="handleFilter"
+      >搜索</el-button>
+      <el-button v-waves class="filter-item" type="primary" @click="clearFilter">查看所有</el-button>
     </div>
 
     <el-table
@@ -38,7 +52,11 @@
           <span>{{ row.contestID }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" :width="contestsQuery.contestKind === '自定义' ? '400' : '500'" align="center">
+      <el-table-column
+        label="标题"
+        :width="contestsQuery.contestKind === '自定义' ? '400' : '500'"
+        align="center"
+      >
         <template slot-scope="{row}">
           <el-link type="primary" @click="getContestDetail(row)">{{ row.title }}</el-link>
         </template>
@@ -55,28 +73,39 @@
       </el-table-column>
       <el-table-column label="权限" width="120" align="center">
         <template slot-scope="{row}">
-          <el-button size="mini" :type="getPermissionColor(row)" plain>
-            {{ row.permissionType }}
-          </el-button>
+          <el-button size="mini" :type="getPermissionColor(row)" plain>{{ row.permissionType }}</el-button>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="120" align="center">
         <template slot-scope="{row}">
-          <el-button size="mini" :type="row.status === '正在进行' ? 'primary' : row.status === '未开始' ? 'info' : 'danger'" plain>
-            {{ row.status }}
-          </el-button>
+          <el-button
+            size="mini"
+            :type="row.status === '正在进行' ? 'primary' : row.status === '未开始' ? 'info' : 'danger'"
+            plain
+          >{{ row.status }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column v-if="contestsQuery.contestKind === '自定义' ? true : false" label="创建者" width="150" align="center">
+      <el-table-column
+        v-if="contestsQuery.contestKind === '自定义' ? true : false"
+        label="创建者"
+        width="150"
+        align="center"
+      >
         <template slot-scope="{row}">
           <span>{{ row.createUser }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" :width="contestsQuery.contestKind === '自定义' ? '140' : '200'" class-name="small-padding">
+      <el-table-column
+        label="操作"
+        align="center"
+        :width="contestsQuery.contestKind === '自定义' ? '140' : '200'"
+        class-name="small-padding"
+      >
         <template slot-scope="{row}">
           <el-dropdown>
             <el-button type="primary" size="mini">
-              操作菜单<i class="el-icon-arrow-down el-icon--right" />
+              操作菜单
+              <i class="el-icon-arrow-down el-icon--right" />
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native="getContestDetail(row)">详细信息</el-dropdown-item>
@@ -90,13 +119,18 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="contestsQuery.page" :limit.sync="contestsQuery.limit" @pagination="getContests" />
-
+    <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="contestsQuery.page"
+      :limit.sync="contestsQuery.limit"
+      @pagination="getContests"
+    />
   </div>
 </template>
 
 <script>
-import { fetchContestList, fetchContest, updateContest } from '@/api/contest'
+
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
 
@@ -131,14 +165,14 @@ export default {
     getContests() {
       this.listLoading = true
       this.contestsQuery.contestKind = this.getContestKind()
-      fetchContestList(this.contestsQuery).then(response => {
-        const res = response.data
-        this.contests = res.data.list
-        this.total = res.data.total
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-      })
+      // fetchContestList(this.contestsQuery).then(response => {
+      //   const res = response.data
+      //   this.contests = res.data.list
+      //   this.total = res.data.total
+      //   setTimeout(() => {
+      //     this.listLoading = false
+      //   }, 1.5 * 1000)
+      // })
     },
     handleFilter() {
       this.contestsQuery.page = 1
@@ -170,17 +204,16 @@ export default {
       }
       this.handleFilter()
     },
-    handleUpdate() {
-    },
+    handleUpdate() {},
     getContestDetail(row) {
-      this.$router.push({ path: '/contest/detail', query: { id: row.contestID }})
+      this.$router.push({
+        path: '/contest/detail',
+        query: { id: row.contestID }
+      })
     },
-    getUserList() {
-    },
-    getProblemList() {
-    },
-    getJudgeList() {
-    },
+    getUserList() {},
+    getProblemList() {},
+    getJudgeList() {},
     getContestKind() {
       const title = this.$route.meta.title
       if (title === '练习赛') {
@@ -197,11 +230,18 @@ export default {
     },
     getPermissionColor(row) {
       const permission = row.permissionType
-      const type = permission === '公开' ? 'success'
-        : permission === '密码' ? 'primary'
-          : permission === '私有' ? 'danger'
-            : permission === '注册' ? 'warning'
-              : permission === '正式' ? 'primary' : ''
+      const type =
+        permission === '公开'
+          ? 'success'
+          : permission === '密码'
+            ? 'primary'
+            : permission === '私有'
+              ? 'danger'
+              : permission === '注册'
+                ? 'warning'
+                : permission === '正式'
+                  ? 'primary'
+                  : ''
       return type
     }
   }

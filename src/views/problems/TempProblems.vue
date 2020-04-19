@@ -43,7 +43,7 @@
     >
       <el-table-column label="标记ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.problemID }}</span>
+          <span>{{ row.problemID }}00001</span>
         </template>
       </el-table-column>
       <el-table-column label="来源站点" width="140" align="center">
@@ -60,7 +60,7 @@
       </el-table-column>
       <el-table-column label="标题" align="center">
         <template slot-scope="{row}">
-          <el-link type="primary" @click="goProblemDetail(row)">{{ row.title }}</el-link>
+          <el-link type="primary" @click="goProblemDetail(row)">{{ row.title }}A+B问题</el-link>
         </template>
       </el-table-column>
       <el-table-column label="来自爬虫任务" width="160" align="center">
@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import { fetchProblemList, deleteProblem } from '@/api/problems'
+// import { fetchProblemList, deleteProblem } from '@/api/problems'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
 
@@ -119,10 +119,10 @@ export default {
       currentRow: '',
       currentIndex: '',
       dialogVisible: false,
-      problems: null,
+      problems: [{}, {}, {}],
       total: 0,
       tags: null,
-      listLoading: true,
+      listLoading: false,
       problemsQuery: {
         page: 1,
         limit: 20,
@@ -143,79 +143,79 @@ export default {
   },
   methods: {
     getProblems() {
-      this.listLoading = true
-      fetchProblemList(this.problemsQuery).then(response => {
-        const res = response.data
-        this.problems = res.data.list
-        this.total = res.data.total
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-      })
+      // this.listLoading = true
+      // fetchProblemList(this.problemsQuery).then(response => {
+      //   const res = response.data
+      //   this.problems = res.data.list
+      //   this.total = res.data.total
+      //   setTimeout(() => {
+      //     this.listLoading = false
+      //   }, 1.5 * 1000)
+      // })
     },
     handleFilter() {
-      this.problemsQuery.page = 1
-      this.getProblems()
+      // this.problemsQuery.page = 1
+      // this.getProblems()
     },
     clearFilter() {
-      this.problemsQuery = {
-        page: 1,
-        limit: 20,
-        sort: '+id',
-        title: undefined
-      }
-      this.getProblems()
+      // this.problemsQuery = {
+      //   page: 1,
+      //   limit: 20,
+      //   sort: '+id',
+      //   title: undefined
+      // }
+      // this.getProblems()
     },
     handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
+      // this.$message({
+      //   message: '操作Success',
+      //   type: 'success'
+      // })
+      // row.status = status
     },
     sortChange(data) {
-      const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
+      // const { prop, order } = data
+      // if (prop === 'id') {
+      //   this.sortByID(order)
+      // }
     },
     sortByID(order) {
-      if (order === 'ascending') {
-        this.problemsQuery.sort = '+id'
-      } else {
-        this.problemsQuery.sort = '-id'
-      }
-      this.handleFilter()
+      // if (order === 'ascending') {
+      //   this.problemsQuery.sort = '+id'
+      // } else {
+      //   this.problemsQuery.sort = '-id'
+      // }
+      // this.handleFilter()
     },
     handleCreate() {},
     handleUpdate(row) {
-      this.$router.push({
-        path: '/problems/EditProblems',
-        query: { id: row.problemID }
-      })
+      // this.$router.push({
+      //   path: '/problems/EditProblems',
+      //   query: { id: row.problemID }
+      // })
     },
     deleteProblem() {
-      this.dialogVisible = false
-      const row = this.currentRow
-      const index = this.currentIndex
-      deleteProblem(row.problemID).then(response => {
-        const res = response.data
-        if (res.code === 10000) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-          this.problems.splice(index, 1)
-        }
-      })
+      // this.dialogVisible = false
+      // const row = this.currentRow
+      // const index = this.currentIndex
+      // deleteProblem(row.problemID).then(response => {
+      //   const res = response.data
+      //   if (res.code === 10000) {
+      //     this.$notify({
+      //       title: '成功',
+      //       message: '删除成功',
+      //       type: 'success',
+      //       duration: 2000
+      //     })
+      //     this.problems.splice(index, 1)
+      //   }
+      // })
     },
     goProblemDetail(row) {
-      this.$router.push({
-        path: '/problems/ProblemDetail',
-        query: { id: row.problemID }
-      })
+      // this.$router.push({
+      //   path: '/problems/ProblemDetail',
+      //   query: { id: row.problemID }
+      // })
     }
   }
 }

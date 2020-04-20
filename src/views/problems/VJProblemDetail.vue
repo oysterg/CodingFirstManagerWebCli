@@ -3,11 +3,11 @@
     <div class="context-container">
       <div class="problem-basic">
         <div class="title">
-          <h1>{{ problemInfo.title }}</h1>
-          <p>TimeLimit:{{ problemView.timeLimit }}</p>
-          <p>MemoryLimit:{{ problemView.memoryLimit }}</p>
+          <h1>{{ problemInfo.probTitle }}</h1>
+          <p>TimeLimit:{{ problemInfo.timeLimit }}</p>
+          <p>MemoryLimit:{{ problemInfo.memoryLimit }}</p>
           <p>64-bit integer IO format:
-            <el-button type="info" size="mini">{{ problemView.intFormat }}</el-button>
+            <el-button type="info" size="mini">{{  }}</el-button>
           </p>
         </div>
         <div class="info">
@@ -23,10 +23,7 @@
             <div slot="header" class="clearfix">
               <span>问题描述</span>
             </div>
-            <div
-              class="text item"
-              v-html="problemView.description"
-            />
+            <el-link>{{ problemInfo.problemDescriptionUrl }}</el-link>
           </el-card>
           <el-card class="box-card">
             <div slot="header" class="clearfix">
@@ -34,7 +31,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemView.input"
+              v-html="无"
             />
           </el-card>
           <el-card class="box-card">
@@ -43,7 +40,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemView.output"
+              v-html="无"
             />
           </el-card>
           <el-card class="box-card">
@@ -52,7 +49,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemSample.inputCase"
+              v-html="无"
             />
           </el-card>
           <el-card class="box-card">
@@ -61,7 +58,7 @@
             </div>
             <div
               class="text item"
-              v-html="problemSample.outputCase"
+              v-html="无"
             />
           </el-card>
         </div>
@@ -73,19 +70,19 @@
             </div>
             <div class="stastic-content">
               <p>总AC数
-                <el-link type="primary" class="data">{{ problemInfo.totalAc }}</el-link>
+                <el-link type="primary" class="data">{{ 无 }}</el-link>
               </p>
               <p>通过人数
-                <el-link type="primary" class="data">{{ problemInfo.totalAcUser }}</el-link>
+                <el-link type="primary" class="data">{{ 无 }}</el-link>
               </p>
               <p>尝试人数
-                <el-link type="primary" class="data">{{ problemInfo.totalSubmitUser }}</el-link>
+                <el-link type="primary" class="data">{{ 无 }}</el-link>
               </p>
               <p>总提交量
-                <el-link type="primary" class="data">{{ problemInfo.totalSubmit }}</el-link>
+                <el-link type="primary" class="data">{{ 无 }}</el-link>
               </p>
               <p>AC率
-                <span class="data">{{ (problemInfo.totalAc / problemInfo.totalSubmit).toFixed(2) }}%</span>
+                <span class="data">{{ (无 / 无).toFixed(2) }}%</span>
               </p>
             </div>
           </el-card>
@@ -95,15 +92,13 @@
   </div>
 </template>
 <script>
-import { fetchProblem } from '@/api/problems'
+import { fetchVJProblem } from '@/api/problems'
 
 export default {
-  name: 'ProblemDetail',
+  name: 'VJProblemDetail',
   data() {
     return {
       problemInfo: '',
-      problemView: '',
-      problemSample: null,
       totalStar: '',
       totalTag: ''
     }
@@ -114,14 +109,14 @@ export default {
   methods: {
     getProblemInfo() {
       this.listLoading = true
-      const problemId = this.$route.query.id
-      fetchProblem(problemId).then(response => {
+      const query = {
+        probNum: this.$route.query.probNum,
+        OJId: this.$route.query.OJId,
+        username: ''
+      }
+      fetchVJProblem(query).then(response => {
         const res = response.data
         this.problemInfo = res.datas[0]
-        this.problemView = res.datas[1]
-        this.problemSample = res.datas[2]
-        this.totalStar = res.datas[3]
-        this.totalTag = res.datas[4]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)

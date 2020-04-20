@@ -50,8 +50,23 @@ export function deleteProblem(problemId) {
 
 export function fetchVJProblemList(query) {
   return request({
-    url: '/admin/problems/vj/list',
-    method: 'get',
+    url: '/vj/problem/list',
+    method: 'post',
     params: query
+  })
+}
+
+export function fetchVJProblem(query) {
+  return request({
+    url: '/vj/problem/info',
+    method: 'post',
+    params: query
+  })
+}
+
+export function fetchOjs() {
+  return request({
+    url: '/vj/util/ojs',
+    method: 'post'
   })
 }

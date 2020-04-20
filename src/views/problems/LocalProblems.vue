@@ -9,7 +9,7 @@
         @keyup.enter.native="handleFilter"
       />
       <el-select
-        v-model="problemsQuery.difficulty"
+        v-model="problemsQuery.difficultLevel"
         placeholder="难度"
         filterable
         clearable
@@ -43,7 +43,7 @@
       style="width: 98%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="120">
+      <el-table-column label="ID" prop="problemId" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
           <span>{{ row.problemId }}</span>
         </template>
@@ -83,7 +83,7 @@
           <el-button
             size="mini"
             type="danger"
-            @click="currentRow = row, currentIndex = $index, dialogVisible = true"
+            @click="currentRow = row, currentIndex = $index, deleteDialogVisible = true"
           >删除
           </el-button>
         </template>
@@ -98,10 +98,10 @@
       @pagination="getProblems"
     />
 
-    <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+    <el-dialog title="提示" :visible.sync="deleteDialogVisible" width="30%">
       <span>确定删除本题目？</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">否</el-button>
+        <el-button @click="deleteDialogVisible = false">否</el-button>
         <el-button type="primary" @click="deleteProblem">是</el-button>
       </span>
     </el-dialog>
@@ -110,7 +110,6 @@
 
 <script>
 import { fetchProblemList, deleteProblem } from '@/api/problems'
-import { fetchTagList } from '@/api/tags'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
 
@@ -122,16 +121,16 @@ export default {
     return {
       currentRow: '',
       currentIndex: '',
-      dialogVisible: false,
+      deleteDialogVisible: false,
       problems: null,
       total: 0,
-      tags: null,
       listLoading: true,
       problemsQuery: {
         page: 1,
         limit: 20,
+        sort: undefined,
         title: undefined,
-        difficulty: undefined
+        difficultLevel: undefined
       },
       tagsQuery: {
         page: 1,
@@ -169,15 +168,6 @@ export default {
         }, 1.5 * 1000)
       })
     },
-    getTags() {
-      fetchTagList(this.tagsQuery).then(response => {
-        const res = response.data
-        this.tags = res.data.list
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-      })
-    },
     handleFilter() {
       this.problemsQuery.page = 1
       this.getProblems()
@@ -186,41 +176,28 @@ export default {
       this.problemsQuery = {
         page: 1,
         limit: 20,
+        sort: undefined,
         title: undefined,
-        difficulty: undefined
+        difficultLevel: undefined
       }
       this.getProblems()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
-      }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.problemsQuery.sort = '+id'
-      } else {
-        this.problemsQuery.sort = '-id'
+      if (prop === 'problemId') {
+        this.problemsQuery.sort = order
       }
       this.handleFilter()
     },
-    handleCreate() {},
     handleUpdate(row) {
       this.$router.push({
         path: '/problems/EditProblems',
         query: { id: row.problemId }
       })
     },
+    handleCreate() {},
     deleteProblem() {
-      this.dialogVisible = false
+      this.deleteDialogVisible = false
       const row = this.currentRow
       const index = this.currentIndex
       deleteProblem(row.problemId).then(response => {

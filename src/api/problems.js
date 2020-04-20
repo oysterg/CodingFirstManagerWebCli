@@ -40,11 +40,11 @@ export function updateProblem(data) {
   })
 }
 
-export function deleteProblem(id) {
+export function deleteProblem(problemId) {
   return request({
     url: '/admin/problems/delete',
     method: 'delete',
-    params: { id }
+    params: { problemId }
   })
 }
 

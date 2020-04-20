@@ -186,8 +186,8 @@ export default {
       const { prop, order } = data
       if (prop === 'problemId') {
         this.problemsQuery.sort = order
+        this.handleFilter()
       }
-      this.handleFilter()
     },
     handleUpdate(row) {
       this.$router.push({

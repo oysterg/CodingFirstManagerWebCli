@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchTagList(query) {
   return request({
-    url: '/tags/list',
+    url: '/admin/tag/list',
     method: 'get',
     params: query
   })
@@ -10,7 +10,7 @@ export function fetchTagList(query) {
 
 export function fetchTag(id) {
   return request({
-    url: '/tags/detail',
+    url: '/admin/tag/info',
     method: 'get',
     params: { id }
   })
@@ -18,23 +18,23 @@ export function fetchTag(id) {
 
 export function createTag(data) {
   return request({
-    url: '/tags/create',
+    url: '/admin/tag/create',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function updateTag(data) {
   return request({
-    url: '/tags/update',
+    url: '/admin/tag/update',
     method: 'put',
-    data
+    params: data
   })
 }
 
 export function deleteTag(id) {
   return request({
-    url: '/tags/delete',
+    url: '/admin/tag/delete',
     method: 'delete',
     params: { id }
   })

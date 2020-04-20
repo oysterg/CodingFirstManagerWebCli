@@ -16,32 +16,26 @@
     <el-table
       v-loading="listLoading"
       :data="tags"
-      border
       fit
       highlight-current-row
       style="width: 98%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="120">
+      <el-table-column label="ID" prop="ID" sortable="custom" align="center" width="200">
         <template slot-scope="{row}">
-          <span>{{ row.tagID }}</span>
+          <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标签名称" width="605" align="center">
-        <template slot-scope="{row}">
-          <el-link type="primary">{{ row.name }}</el-link>
+      <el-table-column label="标签名称" width="800" align="center">
+        <template slot-scope="{row, $index}">
+          <el-link type="primary" @click="handleUpdate(row, $index)">{{ row.name }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column label="用户" width="200" align="center">
+      <el-table-column label="创建人" width="200" align="center">
         <template slot-scope="{row}">
           <el-button size="mini">
-            {{ row.userName }}
+            {{ row.createUser }}
           </el-button>
-        </template>
-      </el-table-column>
-      <el-table-column label="时间" width="300" align="center">
-        <template slot-scope="{row}">
-          <span>{{ row.time }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
@@ -71,9 +65,9 @@
     </el-dialog>
 
     <el-dialog :title="dialogStatus === 'update'? '编辑标签':'添加标签'" :visible.sync="dialogVisible">
-      <el-form ref="dataForm" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+      <el-form ref="tagInfo" :model="tagInfoTemp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="标签名称" prop="name">
-          <el-input v-model="temp.name" />
+          <el-input v-model="tagInfoTemp.name" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -90,26 +84,14 @@
 
 <script>
 import store from '@/store'
-import { fetchTagList, createTag, updateTag, deleteTag } from '@/api/tags'
+import { fetchTagList, createTag, updateTag, deleteTag } from '@/api/tag'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
-import { parseTime } from '@/utils'
 
 export default {
   name: 'ProblemsTag',
   components: { Pagination },
   directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusColor = {
-        edit: 'brand color',
-        delete: 'danger',
-        tags: 'success',
-        statistic: 'warning'
-      }
-      return statusColor[status]
-    }
-  },
   data() {
     return {
       currentRow: '',
@@ -120,18 +102,18 @@ export default {
       tagsQuery: {
         page: 1,
         limit: 20,
-        sort: '+id',
+        sort: undefined,
         name: undefined
       },
       deleteDialogVisible: false,
       dialogVisible: false,
       dialogStatus: '',
-      temp: {
+      tagInfoTemp: {
         id: '',
-        tagID: '',
         name: '',
-        userName: '',
-        time: ''
+        tagType: '',
+        createUser: '',
+        priority: ''
       },
       rules: {
       }
@@ -145,20 +127,20 @@ export default {
       this.listLoading = true
       fetchTagList(this.tagsQuery).then(response => {
         const res = response.data
-        this.tags = res.data.list
-        this.total = res.data.total
+        this.tags = res.datas[0]
+        this.total = res.datas[1]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
       })
     },
     resetTemp() {
-      this.temp = {
+      this.tagInfoTemp = {
         id: '',
-        tagID: '',
         name: '',
-        userName: '',
-        time: ''
+        tagType: '',
+        createUser: '',
+        priority: ''
       }
     },
     handleFilter() {
@@ -169,51 +151,33 @@ export default {
       this.tagsQuery = {
         page: 1,
         limit: 20,
-        sort: '+id',
+        sort: undefined,
         name: undefined
       }
       this.getTags()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      if (prop === 'ID') {
+        this.tagsQuery.sort = order
+        this.handleFilter()
       }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.tagsQuery.sort = '+id'
-      } else {
-        this.tagsQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     handleCreate() {
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogVisible = true
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['tagInfo'].clearValidate()
       })
     },
     createTag() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['tagInfo'].validate((valid) => {
         if (valid) {
-          const date = new Date()
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // 模拟一个ID
-          this.temp.tagID = parseInt(Math.random() * 100) + 1024
-          this.temp.userName = store.getters.name
-          this.temp.time = parseTime(date)
-          createTag(this.temp).then(response => {
-            this.tags.unshift(this.temp)
-            this.dialogVisible = false
+          this.tagInfoTemp.tagType = 0 // 暂时默认
+          this.tagInfoTemp.priority = 0 // 暂时 默认
+          this.tagInfoTemp.createUser = store.getters.name
+          createTag(this.tagInfoTemp).then(response => {
             const res = response.data
             if (res.code === 10000) {
               this.$notify({
@@ -224,6 +188,8 @@ export default {
               })
             }
           })
+          this.dialogVisible = false
+          this.getTags()
         }
       })
     },
@@ -233,21 +199,21 @@ export default {
       this.dialogVisible = true
       this.currentRow = row
       this.currentIndex = index
-      this.temp.name = row.name
+      this.tagInfoTemp.id = row.id
+      this.tagInfoTemp.name = row.name
+      this.tagInfoTemp.createUser = row.createUser
+      this.tagInfoTemp.tagType = row.tagType // 暂不做修改
+      this.tagInfoTemp.priority = row.priority // 暂不做修改
       this.$nextTick(() => {
-        this.$refs['dataForm'].clearValidate()
+        this.$refs['tagInfo'].clearValidate()
       })
     },
     updateTag() {
-      this.$refs['dataForm'].validate((valid) => {
+      this.$refs['tagInfo'].validate((valid) => {
         if (valid) {
-          this.temp.id = this.currentRow.id
-          this.temp.tagID = this.currentRow.tagID
-          this.temp.userName = this.currentRow.userName
-          this.temp.time = this.currentRow.time
-          updateTag(this.temp).then(response => {
-            const index = this.tags.findIndex(v => v.tagID === this.temp.tagID)
-            this.tags.splice(index, 1, this.temp)
+          updateTag(this.tagInfoTemp).then(response => {
+            const index = this.tags.findIndex(v => v.id === this.tagInfoTemp.id)
+            this.tags.splice(index, 1, this.tagInfoTemp)
             this.dialogVisible = false
             const res = response.data
             if (res.code === 10000) {
@@ -266,7 +232,7 @@ export default {
       this.deleteDialogVisible = false
       const row = this.currentRow
       const index = this.currentIndex
-      deleteTag(row.tagID).then(response => {
+      deleteTag(row.id).then(response => {
         const res = response.data
         if (res.code === 10000) {
           this.$notify({

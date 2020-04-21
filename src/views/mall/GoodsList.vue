@@ -5,8 +5,8 @@
       <el-select v-model="goodsQuery.goodsID" placeholder="商品ID" filterable clearable class="filter-item" style="width: 130px">
         <el-option
           v-for="item in goods"
-          :key="item.goodsID"
-          :value="item.goodsID"
+          :key="item.id"
+          :value="item.id"
         />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
@@ -23,7 +23,6 @@
     <el-table
       v-loading="listLoading"
       :data="goods"
-      border
       fit
       highlight-current-row
       style="width: 98%;"
@@ -31,41 +30,51 @@
     >
       <el-table-column label="ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.goodsID }}</span>
+          <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="商品名称" width="490" align="center">
+      <el-table-column label="商品名称" width="300" align="center">
         <template slot-scope="{row}">
           <el-link type="primary" @click="handleUpdate(row)">{{ row.name }}</el-link>
         </template>
       </el-table-column>
-      <el-table-column label="库存" width="120" align="center">
+      <el-table-column label="库存" width="100" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.stock }}</span>
+          <span>{{ row.stock === -1 ? 0 : row.stock }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="ACB" width="120" align="center">
+      <el-table-column label="ACB" width="100" align="center">
         <template slot-scope="{row}">
           <span>{{ row.cost }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="限购" w idth="140" align="center">
+      <el-table-column label="限购" width="100" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.buyLimit }}</span>
+          <span>{{ row.buyLimit === -1 ? '不限购' : row.buyLimit }}</span>
         </template>
       </el-table-column>
       <el-table-column label="图片" width="120" align="center">
         <template slot-scope="{row}">
           <el-image
-            style = "width: 100px; height: 100px"
-            :src = "row.pictureUrl"
-            :fit = "cover"
+            style="width: 100px; height: 100px"
+            :src="row.pictureUrl"
+            :fit="cover"
           />
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="120" align="center">
+      <el-table-column label="状态" width="100" align="center">
         <template slot-scope="{row}">
           <span>{{ row.visible == 1?'显示':'隐藏' }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上架用户" width="110" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.shelfUser }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="上架时间" align="center" width="160">
+        <template slot-scope="{row}">
+          <span>{{ parseTime(row.shelfTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
@@ -73,7 +82,7 @@
           <el-button size="mini" type="primary" @click="handleUpdate(row)">
             修改
           </el-button>
-          <el-button size="mini" type="danger" @click="currentRow = row, currentIndex = $index, dialogVisible = true">
+          <el-button size="mini" type="danger" @click="currentRow = row, currentIndex = $index, deleteDialogVisible = true">
             删除
           </el-button>
         </template>
@@ -84,12 +93,12 @@
 
     <el-dialog
       title="提示"
-      :visible.sync="dialogVisible"
+      :visible.sync="deleteDialogVisible"
       width="30%"
     >
       <span>确定删除该商品？</span>
       <span slot="footer" class="dialog-footer">
-        <el-button @click="dialogVisible = false">否</el-button>
+        <el-button @click="deleteDialogVisible = false">否</el-button>
         <el-button type="primary" @click="handleDelete">是</el-button>
       </span>
     </el-dialog>
@@ -101,6 +110,7 @@
 import { fetchGoodsList, deleteGoods } from '@/api/mall'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
+import { parseTime } from '@/utils'
 
 export default {
   name: 'GoodsList',
@@ -110,15 +120,15 @@ export default {
     return {
       currentRow: '',
       currentIndex: '',
-      dialogVisible: false,
+      deleteDialogVisible: false,
       goods: null,
       total: 0,
       listLoading: true,
       goodsQuery: {
         page: 1,
         limit: 20,
-        sort: '+id',
-        goodsID: undefined,
+        sort: undefined,
+        id: undefined,
         name: undefined
       },
       rules: {
@@ -129,12 +139,13 @@ export default {
     this.getGoods()
   },
   methods: {
+    parseTime,
     getGoods() {
       this.listLoading = true
       fetchGoodsList(this.goodsQuery).then(response => {
         const res = response.data
-        this.goods = res.data.list
-        this.total = res.data.total
+        this.goods = res.datas[0]
+        this.total = res.datas[1]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -148,8 +159,8 @@ export default {
       this.goodsQuery = {
         page: 1,
         limit: 20,
-        sort: '+id',
-        goodsID: undefined,
+        sort: undefined,
+        id: undefined,
         name: undefined
       }
       this.getGoods()
@@ -164,28 +175,21 @@ export default {
     sortChange(data) {
       const { prop, order } = data
       if (prop === 'id') {
-        this.sortByID(order)
+        this.goodsQuery.sort = order
+        this.handleFilter()
       }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.goodsQuery.sort = '+id'
-      } else {
-        this.goodsQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     handleCreate() {
       this.$router.push({ path: '/mall/AddGoods' })
     },
     handleUpdate(row) {
-      this.$router.push({ path: '/mall/EditGoods', query: { id: row.goodsID }})
+      this.$router.push({ path: '/mall/EditGoods', query: { id: row.id }})
     },
     handleDelete() {
-      this.dialogVisible = false
+      this.deleteDialogVisible = false
       const row = this.currentRow
       const index = this.currentIndex
-      deleteGoods(row.goodsID).then(response => {
+      deleteGoods(row.id).then(response => {
         const res = response.data
         if (res.code === 10000) {
           this.$notify({
@@ -199,7 +203,7 @@ export default {
       })
     },
     goGoodsDetail(row) {
-      this.$router.push({ path: '/mall/goodsDetail', query: { id: row.goodsID }})
+      this.$router.push({ path: '/mall/goodsDetail', query: { id: row.id }})
     }
   }
 }

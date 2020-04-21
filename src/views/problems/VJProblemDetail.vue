@@ -7,7 +7,7 @@
           <p>TimeLimit:{{ problemInfo.timeLimit }}</p>
           <p>MemoryLimit:{{ problemInfo.memoryLimit }}</p>
           <p>64-bit integer IO format:
-            <el-button type="info" size="mini">{{  }}</el-button>
+            <el-button type="info" size="mini">{{}}</el-button>
           </p>
         </div>
         <div class="info">

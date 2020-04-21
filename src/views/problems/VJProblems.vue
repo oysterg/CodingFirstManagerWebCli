@@ -47,7 +47,7 @@
       </el-table-column>
       <el-table-column label="更新时间" width="200" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.triggerTime }}</span>
+          <span>{{ parseTime(row.triggerTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="来源" width="380" align="center">
@@ -119,15 +119,13 @@ export default {
     this.getOjs()
   },
   methods: {
+    parseTime,
     getVJProblems() {
       this.listLoading = true
       fetchVJProblemList(this.vjProblemsQuery).then(response => {
         const res = response.data
         this.vjProblems = res.datas[0].data
         this.total = res.datas[0].recordsTotal
-        for (let i = 0; i < this.total; i++) {
-          this.vjProblems[i].triggerTime = parseTime(this.vjProblems[i].triggerTime)
-        }
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)

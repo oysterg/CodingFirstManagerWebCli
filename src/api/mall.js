@@ -2,7 +2,7 @@ import request from '@/utils/request'
 
 export function fetchGoodsList(query) {
   return request({
-    url: '/mall/list',
+    url: '/admin/mall/list',
     method: 'get',
     params: query
   })
@@ -10,7 +10,7 @@ export function fetchGoodsList(query) {
 
 export function fetchGoods(id) {
   return request({
-    url: '/mall/detail',
+    url: '/admin/mall/info',
     method: 'get',
     params: { id }
   })
@@ -18,23 +18,23 @@ export function fetchGoods(id) {
 
 export function createGoods(data) {
   return request({
-    url: '/mall/create',
+    url: '/admin/mall/create',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function updateGoods(data) {
   return request({
-    url: '/mall/update',
+    url: '/admin/mall/update',
     method: 'put',
-    data
+    params: data
   })
 }
 
 export function deleteGoods(id) {
   return request({
-    url: '/mall/delete',
+    url: '/admin/mall/delete',
     method: 'delete',
     params: { id }
   })

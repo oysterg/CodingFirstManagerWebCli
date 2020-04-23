@@ -2,21 +2,21 @@
   <div class="app-container">
     <div class="context-container">
       <div class="title-info" style="text-align:center">
-        <h1>{{ problemDetail.title }}</h1>
-        <p>TimeLimit:{{ problemDetail.timeLimit }}</p>
-        <p>MemoryLimit:{{ problemDetail.memoryLimit }}</p>
+        <h1>{{ problemInfo.title }}</h1>
+        <p>TimeLimit:{{ problemView.timeLimit }}</p>
+        <p>MemoryLimit:{{ problemView.memoryLimit }}</p>
         <p>64-bit integer IO format:
-          <el-button type="info" size="mini">{{ problemDetail.intFormat }}</el-button>
+          <el-button type="info" size="mini">{{ problemView.intFormat }}</el-button>
         </p>
       </div>
-      <el-form ref="problemDetail" :model="problemDetail" label-width="80px">
+      <el-form ref="problemDetail" label-width="80px">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
             <span>问题描述</span>
             <el-button style="float: right; padding: 3px 0" type="text">编辑</el-button>
           </div>
           <div class="text item">
-            <Tinymce ref="editor" v-model="problemDetail.description" :height="400" />
+            <Tinymce ref="editor" v-model="problemView.description" :height="400" />
           </div>
         </el-card>
         <el-card class="box-card">
@@ -25,7 +25,7 @@
             <el-button style="float: right; padding: 3px 0" type="text">编辑</el-button>
           </div>
           <div class="text item">
-            <Tinymce ref="editor" v-model="problemDetail.input" :height="400" />
+            <Tinymce ref="editor" v-model="problemView.input" :height="400" />
           </div>
         </el-card>
         <el-card class="box-card">
@@ -34,7 +34,7 @@
             <el-button style="float: right; padding: 3px 0" type="text">编辑</el-button>
           </div>
           <div class="text item">
-            <Tinymce ref="editor" v-model="problemDetail.output" :height="400" />
+            <Tinymce ref="editor" v-model="problemView.output" :height="400" />
           </div>
         </el-card>
         <el-card class="box-card">
@@ -43,7 +43,7 @@
             <el-button style="float: right; padding: 3px 0" type="text">编辑</el-button>
           </div>
           <div class="text item">
-            <Tinymce ref="editor" v-model="problemDetail.inputCase" :height="400" />
+            <Tinymce ref="editor" v-model="problemSample.inputCase" :height="400" />
           </div>
         </el-card>
         <el-card class="box-card">
@@ -52,11 +52,11 @@
             <el-button style="float: right; padding: 3px 0" type="text">编辑</el-button>
           </div>
           <div class="text item">
-            <Tinymce ref="editor" v-model="problemDetail.outputCase" :height="400" />
+            <Tinymce ref="editor" v-model="problemSample.outputCase" :height="400" />
           </div>
         </el-card>
         <el-form-item>
-          <el-button type="primary" @click="handleUpdate(problemDetail)">提交</el-button>
+          <el-button type="primary" @click="handleUpdate(problemView, problemSample)">提交</el-button>
           <el-button @click="beforeRouteLeave">取消</el-button>
         </el-form-item>
       </el-form>
@@ -72,19 +72,9 @@ export default {
   components: { Tinymce },
   data() {
     return {
-      problemDetail: {
-        title: '',
-        timeLimit: '',
-        memoryLimit: '',
-        intFormat: '',
-        spj: '',
-        description: '',
-        input: '',
-        output: '',
-        inputCase: '',
-        outputCase: '',
-        hint: ''
-      }
+      problemInfo: '',
+      problemView: '',
+      problemSample: ''
     }
   },
   created() {
@@ -96,15 +86,25 @@ export default {
       const id = this.$route.query.id
       fetchProblem(id).then(response => {
         const res = response.data
-        this.problemDetail = res.data
+        this.problemInfo = res.datas[0]
+        this.problemView = res.datas[1]
+        this.problemSample = res.datas[2]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
       })
     },
-    handleUpdate(problemDetail) {
+    handleUpdate(problemView, problemSample) {
       this.listLoading = true
-      updateProblem(problemDetail).then(response => {
+      const data = {
+        problemId: problemView.problemId,
+        description: problemView.description,
+        input: problemView.input,
+        output: problemView.output,
+        inputCase: problemView.inputCase,
+        outputCase: problemView.outputCase
+      }
+      updateProblem(data).then(response => {
         const res = response.data
         if (res.code === 10000) {
           this.$notify({

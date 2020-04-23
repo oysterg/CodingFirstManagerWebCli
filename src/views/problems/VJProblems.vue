@@ -2,14 +2,14 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input v-model="vjProblemsQuery.title" placeholder="标题" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-      <el-select v-model="vjProblemsQuery.OJ" placeholder="OJ" filterable clearable class="filter-item" style="width: 130px">
+      <el-select v-model="vjProblemsQuery.OJId" placeholder="OJ" filterable clearable class="filter-item" style="width: 130px">
         <el-option
-          v-for="item in vjProblems"
-          :key="item.OJ"
-          :value="item.OJ">
-        </el-option>
+          v-for="item in Ojs"
+          :key="item.name"
+          :value="item.name"
+        />
       </el-select>
-      <el-input v-model="vjProblemsQuery.problemID" placeholder="题号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
+      <el-input v-model="vjProblemsQuery.probNum" placeholder="题号" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-input v-model="vjProblemsQuery.source" placeholder="来源" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
@@ -17,15 +17,14 @@
       <el-button v-waves class="filter-item" type="primary" @click="clearFilter">
         查看所有
       </el-button>
-      <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="goCreate">
-        添加题目
+      <el-button class="filter-item" style="margin-left: 10px;" type="warning" @click="handleUpdate">
+        更新缓存
       </el-button>
     </div>
 
     <el-table
       v-loading="listLoading"
       :data="vjProblems"
-      border
       fit
       highlight-current-row
       style="width: 98%;"
@@ -33,12 +32,12 @@
     >
       <el-table-column label="OJ" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.OJ }}</span>
+          <span>{{ row.originOJ }}</span>
         </template>
       </el-table-column>
       <el-table-column label="题目ID" prop="id" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.problemID }}</span>
+          <span>{{ row.originProb }}</span>
         </template>
       </el-table-column>
       <el-table-column label="标题" width="400" align="center">
@@ -48,19 +47,16 @@
       </el-table-column>
       <el-table-column label="更新时间" width="200" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.updateTime }}</span>
+          <span>{{ parseTime(row.triggerTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="来源" width="380" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.source }}</span>
+          <span v-html="row.source" />
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
         <template slot-scope="{row,$index}">
-          <el-button size="mini" type="primary" @click="goUpdate(row)">
-            修改
-          </el-button>
           <el-button size="mini" type="danger" @click="currentRow = row, currentIndex = $index, dialogVisible = true">
             删除
           </el-button>
@@ -75,7 +71,7 @@
       :visible.sync="dialogVisible"
       width="30%"
     >
-      <span>确定删除本题目？</span>
+      <span>确定删除本题目缓存？</span>
       <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">否</el-button>
         <el-button type="primary" @click="handleDelete">是</el-button>
@@ -86,62 +82,60 @@
 </template>
 
 <script>
-import { fetchVJProblemList, deleteVJProblem } from '@/api/problems'
+import { fetchVJProblemList, fetchOjs } from '@/api/problems'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
+import { parseTime } from '@/utils'
 
 export default {
   name: 'LocalProblems',
   components: { Pagination },
   directives: { waves },
-  filters: {
-    statusFilter(status) {
-      const statusColor = {
-        edit: 'brand color',
-        delete: 'danger',
-        tags: 'success',
-        statistic: 'warning'
-      }
-      return statusColor[status]
-    }
-  },
   data() {
     return {
       currentRow: '',
       currentIndex: '',
       dialogVisible: false,
       vjProblems: null,
+      Ojs: null,
       total: 0,
       listLoading: true,
       vjProblemsQuery: {
-        page: 1,
-        limit: 20,
-        sort: '+id',
+        pageNum: 1,
+        pageSize: 20,
+        sort: undefined,
         title: undefined,
-        OJ: undefined,
-        problemID: undefined,
+        OJId: undefined,
+        probNum: undefined,
         source: undefined
       },
-      difficultyOptions: ['简单', '中等', '困难'],
       dialogStatus: '',
-      textMap: {
-        update: '编辑',
-        create: '创建'
-      },
       rules: {
       }
     }
   },
   created() {
     this.getVJProblems()
+    this.getOjs()
   },
   methods: {
+    parseTime,
     getVJProblems() {
       this.listLoading = true
       fetchVJProblemList(this.vjProblemsQuery).then(response => {
         const res = response.data
-        this.vjProblems = res.data.list
-        this.total = res.data.total
+        this.vjProblems = res.datas[0].data
+        this.total = res.datas[0].recordsTotal
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
+    },
+    getOjs() {
+      this.listLoading = true
+      fetchOjs().then(response => {
+        const res = response.data
+        this.Ojs = res.datas[0]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -153,61 +147,27 @@ export default {
     },
     clearFilter() {
       this.vjProblemsQuery = {
-        page: 1,
-        limit: 20,
-        sort: '+id',
+        pageNum: 1,
+        pageSize: 20,
+        sort: undefined,
         title: undefined,
-        OJ: undefined,
-        problemID: undefined,
+        OJId: undefined,
+        probNum: undefined,
         source: undefined
       }
       this.getVJProblems()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      if (prop === 'problemNum') {
+        this.vjProblemsQuery.sort = order
+        this.handleFilter()
       }
     },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.vjProblemsQuery.sort = '+id'
-      } else {
-        this.vjProblemsQuery.sort = '-id'
-      }
-      this.handleFilter()
-    },
-    goCreate() {
-    },
-    goUpdate(row) {
-      this.$router.push({ path: '/problems/EditProblems', query: { id: row.problemID }})
-    },
-    handleDelete() {
-      this.dialogVisible = false
-      const row = this.currentRow
-      const index = this.currentIndex
-      deleteVJProblem(row.problemID).then(response => {
-        const res = response.data
-        if (res.code === 10000) {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 2000
-          })
-          this.problems.splice(index, 1)
-        }
-      })
+    handleUpdate() {
     },
     goProblemDetail(row) {
-      this.$router.push({ path: '/problems/ProblemDetail', query: { id: row.problemID }})
+      this.$router.push({ path: '/problems/VJProblemDetail', query: { probNum: row.originProb, OJId: row.originOJ }})
     }
   }
 }

@@ -2,10 +2,7 @@
   <div id="app-container">
     <div class="goods-content">
       <el-card class="box-card">
-        <el-form ref="goodsInfo" :rules="addGoodsRules" :model="goodsInfo" label-width="80px">
-          <el-form-item label="商品ID" prop="goodsID">
-            <el-input v-model="goodsInfo.goodsID" />
-          </el-form-item>
+        <el-form ref="goodsInfo" :rules="addGoodsRules" :model="goodsInfo" label-width="100px">
           <el-form-item label="商品名称" prop="name">
             <el-input v-model="goodsInfo.name" />
           </el-form-item>
@@ -16,15 +13,31 @@
             <el-input-number v-model="goodsInfo.stock" :min="1" />
           </el-form-item>
           <el-form-item label="限购数量">
-            <el-input-number v-model="goodsInfo.buyLimit" :min="1" />
+            <el-input-number v-model="goodsInfo.buyLimit" :disabled="buyLimitStatus.value" :min="-1" />
+            <el-switch
+              v-model="buyLimitStatus.value"
+              active-color="#ff4949"
+              inactive-color="#13ce66"
+              @change="buyLimitStatus.name = buyLimitStatus.value ? '不限购' : '限购'"
+            />
+            {{ buyLimitStatus.name }}
           </el-form-item>
           <el-form-item label="认证限购">
             <el-select v-model="goodsInfo.buyVerifyLimit">
-              <el-option value="所有人均可购买" />
-              <el-option value="校内人员可购买" />
-              <el-option value="协会成员可购买" />
-              <el-option value="现役人员可购买" />
+              <el-option
+                v-for="item in buyVerifyLimitOptions"
+                :key="item.value"
+                :label="item.name"
+                :value="item.value"
+              />
             </el-select>
+          </el-form-item>
+          <el-form-item label="是否虚拟商品">
+            <el-switch
+              v-model="goodsInfo.goodsType"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+            />
           </el-form-item>
           <el-form-item label="是否显示">
             <el-switch
@@ -63,7 +76,7 @@
 </template>
 
 <script>
-
+import store from '@/store'
 import { createGoods } from '@/api/mall'
 import Tinymce from '@/components/Tinymce'
 
@@ -73,17 +86,26 @@ export default {
   data() {
     return {
       pictureDialogVisible: false,
-      uploadVisible: true,
+      buyVerifyLimitOptions: [
+        { name: '所有人均可购买', value: 1 },
+        { name: '校内人员可购买', value: 2 },
+        { name: '协会成员可购买', value: 3 },
+        { name: '现役队员可购买', value: 4 }
+      ],
+      buyLimitStatus: { name: '不限购', value: true },
       goodsInfo: {
+        id: '',
         goodsID: '',
         name: '',
         cost: '',
         stock: '',
+        goodsType: false,
         buyLimit: '',
-        buyVerifyLimit: '所有人均可购买',
+        buyVerifyLimit: 1,
         visible: '',
         pictureUrl: '',
-        description: ''
+        description: '',
+        shelfUser: ''
       },
       addGoodsRules: {
         goodsID: [
@@ -100,6 +122,11 @@ export default {
       this.$refs.goodsInfo.validate(valid => {
         if (valid) {
           this.listLoading = true
+          this.goodsInfo.visible = this.goodsInfo.visible ? 1 : 0
+          this.goodsInfo.buyLimit = this.buyLimitStatus.value ? -1 : this.goodsInfo.buyLimit // true为不限购，false则为限购数量
+          this.goodsInfo.goodsType = this.goodsInfo.goodsType ? 1 : 0
+          console.log(this.goodsInfo.goodsType)
+          this.goodsInfo.shelfUser = store.getters.name
           createGoods(this.goodsInfo).then(response => {
             const res = response.data
             if (res.code === 10000) {

@@ -273,6 +273,13 @@ export const asyncRoutes = [
         name: 'ProblemDetail',
         meta: { title: '题目详情', noCache: true },
         hidden: true
+      },
+      {
+        path: 'VJProblemDetail',
+        component: () => import('@/views/problems/VJProblemDetail'),
+        name: 'VJProblemDetail',
+        meta: { title: '题目详情', noCache: true },
+        hidden: true
       }
     ]
   },

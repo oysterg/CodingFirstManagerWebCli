@@ -2,31 +2,41 @@
   <div class="app-container">
     <div class="filter-container">
       <el-input
-        v-model="contestsQuery.title"
+        v-model="contestsQuery.searchName"
         placeholder="标题"
         style="width: 200px;"
         class="filter-item"
         @keyup.enter.native="handleFilter"
       />
       <el-select
-        v-model="contestsQuery.permission"
+        v-model="contestsQuery.searchPermission"
         placeholder="权限"
         filterable
         clearable
         class="filter-item"
         style="width: 130px"
       >
-        <el-option v-for="item in permissionOptions" :key="item" :value="item" />
+        <el-option
+          v-for="item in permissionOptions"
+          :key="item.value"
+          :label = "item.name"
+          :value="item.value"
+        />
       </el-select>
       <el-select
-        v-model="contestsQuery.status"
+        v-model="contestsQuery.searchStatus"
         placeholder="状态"
         filterable
         clearable
         class="filter-item"
         style="width: 130px"
       >
-        <el-option v-for="item in statusOptions" :key="item" :value="item" />
+        <el-option
+          v-for="item in statusOptions"
+          :key="item.value"
+          :value="item.value"
+          :label="item.name"
+        />
       </el-select>
       <el-button
         v-waves
@@ -49,12 +59,12 @@
     >
       <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80">
         <template slot-scope="{row}">
-          <span>{{ row.contestID }}</span>
+          <span>{{ row.id }}</span>
         </template>
       </el-table-column>
       <el-table-column
         label="标题"
-        :width="contestsQuery.contestKind === '自定义' ? '400' : '500'"
+        :width="contestsQuery.kind === '自定义' ? '400' : '500'"
         align="center"
       >
         <template slot-scope="{row}">
@@ -63,17 +73,17 @@
       </el-table-column>
       <el-table-column label="开始时间" width="200" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.beginTime }}</span>
+          <span>{{ parseTime(row.beginTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="结束时间" width="200" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.endTime }}</span>
+          <span>{{ parseTime(row.endTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="权限" width="120" align="center">
         <template slot-scope="{row}">
-          <el-button size="mini" :type="getPermissionColor(row)" plain>{{ row.permissionType }}</el-button>
+          <el-button size="mini" :type="getPermissionColor(row)" plain>{{ row.permission }}</el-button>
         </template>
       </el-table-column>
       <el-table-column label="状态" width="120" align="center">
@@ -86,7 +96,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        v-if="contestsQuery.contestKind === '自定义' ? true : false"
+        v-if="contestsQuery.kind === '自定义'"
         label="创建者"
         width="150"
         align="center"
@@ -98,7 +108,7 @@
       <el-table-column
         label="操作"
         align="center"
-        :width="contestsQuery.contestKind === '自定义' ? '140' : '200'"
+        :width="contestsQuery.kind === '自定义' ? '140' : '200'"
         class-name="small-padding"
       >
         <template slot-scope="{row}">
@@ -122,8 +132,8 @@
     <pagination
       v-show="total>0"
       :total="total"
-      :page.sync="contestsQuery.page"
-      :limit.sync="contestsQuery.limit"
+      :page.sync="contestsQuery.pageNum"
+      :limit.sync="contestsQuery.pageSize"
       @pagination="getContests"
     />
   </div>
@@ -131,8 +141,10 @@
 
 <script>
 
+import { fetchContestList } from '@/api/contest'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
+import { parseTime } from '@/utils'
 
 export default {
   name: 'ContestList',
@@ -142,19 +154,29 @@ export default {
     return {
       currentRow: '',
       currentIndex: '',
-      permissionOptions: ['公开', '密码', '私有', '注册', '正式', '组队'],
-      statusOptions: ['已结束', '未开始', '正在进行'],
+      permissionOptions: [
+        { name: '公开', value: 0 },
+        { name: '密码', value: 1 },
+        { name: '私有', value: 2 },
+        { name: '注册', value: 3 },
+        { name: '正式', value: 4 },
+        { name: '组队', value: 5 }
+      ],
+      statusOptions: [
+        { name: '未开始', value: 0 },
+        { name: '正在进行', value: 1 },
+        { name: '已结束', value: 2 }
+      ],
       contests: null,
       total: 0,
       listLoading: true,
       contestsQuery: {
-        page: 1,
-        limit: 10,
-        sort: '+id',
-        contestKind: undefined,
-        title: undefined,
-        permission: undefined,
-        status: undefined
+        pageNum: 1,
+        pageSize: 10,
+        kind: undefined,
+        searchName: undefined,
+        searchPermission: undefined,
+        searchStatus: undefined
       }
     }
   },
@@ -162,17 +184,18 @@ export default {
     this.getContests()
   },
   methods: {
+    parseTime,
     getContests() {
       this.listLoading = true
-      this.contestsQuery.contestKind = this.getContestKind()
-      // fetchContestList(this.contestsQuery).then(response => {
-      //   const res = response.data
-      //   this.contests = res.data.list
-      //   this.total = res.data.total
-      //   setTimeout(() => {
-      //     this.listLoading = false
-      //   }, 1.5 * 1000)
-      // })
+      this.contestsQuery.kind = this.getContestKind()
+      fetchContestList(this.contestsQuery).then(response => {
+        const res = response.data
+        this.contests = res.datas[0]
+        this.total = res.datas[1]
+        setTimeout(() => {
+          this.listLoading = false
+        }, 1.5 * 1000)
+      })
     },
     handleFilter() {
       this.contestsQuery.page = 1
@@ -180,29 +203,20 @@ export default {
     },
     clearFilter() {
       this.contestsQuery = {
-        page: 1,
-        limit: 20,
-        sort: '+id',
+        pageNum: 1,
+        pageSize: 10,
         kind: undefined,
-        title: undefined,
-        permissionType: undefined,
-        status: undefined
+        searchName: undefined,
+        searchPermission: undefined,
+        searchStatus: undefined
       }
       this.getContests()
     },
     sortChange(data) {
       const { prop, order } = data
       if (prop === 'id') {
-        this.sortByID(order)
+        this.contestsQuery.sort = order
       }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.contestsQuery.sort = '+id'
-      } else {
-        this.contestsQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     handleUpdate() {},
     getContestDetail(row) {
@@ -217,15 +231,17 @@ export default {
     getContestKind() {
       const title = this.$route.meta.title
       if (title === '练习赛') {
-        return '练习'
+        return 0
       } else if (title === '积分赛') {
-        return '积分'
+        return 1
       } else if (title === '趣味赛') {
-        return '趣味'
+        return 2
       } else if (title === '正式赛') {
-        return '正式'
+        return 3
+      } else if (title === '自定义') {
+        return 5
       } else {
-        return '自定义'
+        return 4
       }
     },
     getPermissionColor(row) {

@@ -64,7 +64,7 @@
       </span>
     </el-dialog>
 
-    <el-dialog :title="dialogStatus === 'update'? '编辑标签':'添加标签'" :visible.sync="dialogVisible">
+    <el-dialog :rule="rules" :title="dialogStatus === 'update'? '编辑标签':'添加标签'" :visible.sync="dialogVisible">
       <el-form ref="tagInfo" :model="tagInfoTemp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
         <el-form-item label="标签名称" prop="name">
           <el-input v-model="tagInfoTemp.name" />
@@ -116,6 +116,9 @@ export default {
         priority: ''
       },
       rules: {
+        name: [
+          { required: true, message: '标签名不能为空', trigger: 'change' }
+        ]
       }
     }
   },

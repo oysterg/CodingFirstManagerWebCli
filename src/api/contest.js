@@ -10,7 +10,7 @@ export function fetchContestList(query) {
 
 export function fetchContest(id) {
   return request({
-    url: '/contest/detail',
+    url: '/contest/info',
     method: 'get',
     params: { id }
   })
@@ -18,15 +18,15 @@ export function fetchContest(id) {
 
 export function createContest(data) {
   return request({
-    url: '/contest/create',
+    url: '/admin/contest/create',
     method: 'post',
-    data
+    params: data
   })
 }
 
 export function fetchContestReviews(query) {
   return request({
-    url: '/contest/review/list',
+    url: '/admin/contest/review/list',
     method: 'get',
     params: query
   })
@@ -34,8 +34,8 @@ export function fetchContestReviews(query) {
 
 export function updateReview(data) {
   return request({
-    url: '/contest/review/update',
+    url: '/admin/contest/review/update',
     method: 'put',
-    data
+    params: data
   })
 }

@@ -257,7 +257,6 @@ export default {
           })
         }
         row.orderCancel = orderCancel
-        console.log(orderCancel)
         this.orders.splice(index, 1, row)
       })
     }

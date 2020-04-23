@@ -39,3 +39,19 @@ export function deleteGoods(id) {
     params: { id }
   })
 }
+
+export function fetchOrderList(query) {
+  return request({
+    url: '/admin/mall/order/list',
+    method: 'get',
+    params: query
+  })
+}
+
+export function updateOrder(data) {
+  return request({
+    url: '/admin/mall/order/update',
+    method: 'put',
+    params: data
+  })
+}

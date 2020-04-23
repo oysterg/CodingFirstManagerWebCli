@@ -16,7 +16,12 @@
         class="filter-item"
         style="width: 130px"
       >
-        <el-option v-for="item in difficultyOptions" :key="item.name" :label="item.name" :value="item.value" />
+        <el-option
+          v-for="item in difficultyOptions"
+          :key="item.name"
+          :label="item.name"
+          :value="item.value"
+        />
       </el-select>
       <el-button
         v-waves
@@ -74,7 +79,7 @@
       </el-table-column>
       <el-table-column label="状态" width="120" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.visible === 1 ? '显示' : '隐藏' }}</span>
+          <span>{{ row.visible === 0 ? '显示' : '隐藏' }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" width="200" class-name="small-padding">
@@ -84,8 +89,7 @@
             size="mini"
             type="danger"
             @click="currentRow = row, currentIndex = $index, deleteDialogVisible = true"
-          >删除
-          </el-button>
+          >删除</el-button>
         </template>
       </el-table-column>
     </el-table>

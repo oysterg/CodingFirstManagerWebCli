@@ -4,27 +4,26 @@
       <el-card class="box-card">
         <el-form ref="challengeInfo" label-positon="left" :rules="addChallengeRules" :model="challengeInfo" label-width="120px">
           <el-form-item label="模块名称" prop="name">
-            <el-input v-model="challengeInfo.name" style="width: 1000px" />
+            <el-input v-model="challengeInfo.name" style="width: 1100px" />
           </el-form-item>
           <el-form-item label="描述">
             <div class="text item">
-              <Tinymce ref="editor" v-model="challengeInfo.description" :width="1000" :height="400" />
+              <Tinymce ref="editor" v-model="challengeInfo.description" :width="1100" :height="400" />
             </div>
           </el-form-item>
           <el-form-item label="类型">
             <el-select v-model="challengeInfo.blockType" placeholder="模块类型">
-              <el-option value="基础" />
-              <el-option value="图论" />
-              <el-option value="数学" />
-              <el-option value="几何" />
-              <el-option value="动态规划" />
-              <el-option value="数据结构" />
-              <el-option value="搜索" />
+              <el-option
+                v-for="item in blockTypeOptions"
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+              />
             </el-select>
           </el-form-item>
           <el-form-item label="开启条件">
             <span>在模块</span>
-            <el-select v-model="preCondition.preConditionBlockID" placeholder="模块" filterable clearable>
+            <el-select v-model="precondition.blockId" placeholder="模块" filterable>
               <el-option
                 v-for="item in challengeList"
                 :key="item.id"
@@ -33,58 +32,58 @@
               />
             </el-select>
             <span>中获得</span>
-            <el-input-number v-model="preCondition.preConditionBlockScore" :min="1" />  积分
-            <el-button type="primary" @click="addPreCondition(preCondition.preConditionBlockID, preCondition.preConditionBlockScore)">添加条件</el-button>
-            <div class="problem-list">
+            <el-input-number v-model="precondition.num" :min="1" />  积分
+            <el-button type="primary" @click="addPreconditionBlock(precondition.blockId, precondition.num)">添加条件</el-button>
+            <el-card class="block-list-card">
               <el-table
                 v-loading="listLoading"
-                :data="challengeInfo.preConditionBlock"
+                :data="challengeInfo.preconditionBlocks"
                 fit
                 highlight-current-row
                 style="width: 98%;"
               >
-                <el-table-column label="模块ID" align="center" width="80">
+                <el-table-column label="模块ID" align="center" width="100">
                   <template slot-scope="{row}">
-                    <span>{{ row.preConditionBlockID }}</span>
+                    <span>{{ row.blockId }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="模块名称" width="200" align="center">
+                <el-table-column label="模块名称" width="640" align="center">
                   <template slot-scope="{row}">
-                    <span>{{ row.preConditionBlockName }}</span>
+                    <span>{{ row.name }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="积分" width="80" align="center">
+                <el-table-column label="积分" width="100" align="center">
                   <template slot-scope="{row}">
-                    <span>{{ row.preConditionBlockScore }}</span>
+                    <span>{{ row.num }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" align="center" width="170" class-name="small-padding">
+                <el-table-column label="操作" align="center" width="160" class-name="small-padding">
                   <template slot-scope="{row, $index}">
-                    <el-button size="mini" type="danger" @click="removePreCondition($index)">删除
+                    <el-button size="mini" type="danger" @click="removePreconditionBlock($index)">删除
                     </el-button>
                   </template>
                 </el-table-column>
               </el-table>
-            </div>
+            </el-card>
           </el-form-item>
           <el-form-item label="题目列表">
             <div class="choose-problem">
               <span>题目编号</span>
-              <el-select v-model="pid" filterable clearable>
+              <el-select v-model="pid" placeholder="题目ID" clearable filterable>
                 <el-option
                   v-for="item in problemList"
-                  :key="item.problemID"
-                  :value="item.problemID"
+                  :key="item.problemId"
+                  :value="item.problemId"
                 />
               </el-select>
               <span>积分</span>
               <el-input-number v-model="score" :min="1" />
               <el-button type="primary" @click="addChallengeProblem(pid)">添加题目</el-button>
             </div>
-            <div class="problem-list">
+            <el-card class="problem-list-card">
               <el-table
                 v-loading="listLoading"
-                :data="challengeInfo.problems"
+                :data="challengeInfo.challengeProblems"
                 fit
                 highlight-current-row
                 style="width: 98%;"
@@ -96,7 +95,7 @@
                 </el-table-column>
                 <el-table-column label="题目ID" width="80" align="center">
                   <template slot-scope="{row}">
-                    <span>{{ row.problemID }}</span>
+                    <span>{{ row.problemId }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="标题" width="600" align="center">
@@ -116,10 +115,10 @@
                   </template>
                 </el-table-column>
               </el-table>
-            </div>
+            </el-card>
           </el-form-item>
           <el-form-item class="form-button">
-            <el-button type="primary" @click="createChallenge(challengeInfo)">提交</el-button>
+            <el-button type="primary" @click="updateChallenge">提交</el-button>
             <el-button @click="goBack">取消</el-button>
           </el-form-item>
         </el-form>
@@ -130,10 +129,9 @@
 
 <script>
 
-import { fetchChallengeList, createChallenge, fetchChallenge } from '@/api/challenge'
-import { fetchProblemList } from '@/api/problems'
+import { fetchAllChallenge, updateChallenge} from '@/api/challenge'
+import { fetchAllProblems } from '@/api/problems'
 import Tinymce from '@/components/Tinymce'
-import { updateChallenge } from '../../api/challenge'
 
 export default {
   name: 'UpdateChallenge',
@@ -145,24 +143,35 @@ export default {
       score: '',
       problemList: null,
       challengeList: null,
-      preCondition: {
-        preConditionBlockID: '',
-        preConditionBlockName: '',
-        preConditionBlockScore: ''
+      precondition: {
+        blockId: '',
+        name: '',
+        num: ''
       },
       problem: {
         problemOrder: '',
-        problemID: '',
+        problemId: '',
         title: '',
-        score: ''
+        score: '',
+        rewardAcb: 0
       },
       challengeInfo: {
+        id: '',
         name: '',
         description: '',
-        blockType: '',
-        preConditionBlock: [],
-        problems: []
+        blockType: '基础',
+        preconditionBlocks: [],
+        challengeProblems: []
       },
+      blockTypeOptions: [
+        { name: '基础', value: 0 },
+        { name: '数据结构', value: 1 },
+        { name: '数学', value: 2 },
+        { name: '几何', value: 3 },
+        { name: '图论', value: 4 },
+        { name: '搜索', value: 5 },
+        { name: '动态规划', value: 6 }
+      ],
       addChallengeRules: {
         name: [
           { required: true, message: '模块名称不能为空', trigger: 'change' }
@@ -173,27 +182,15 @@ export default {
   created() {
     this.getProblemList()
     this.getChallengeList()
-    this.getChallengeDetail()
+    this.challengeInfo = this.$route.query.row
+    console.log(this.$route.query.row)
   },
   methods: {
-    getChallengeDetail() {
-      const challengeQuery = {
-        blockID: this.$route.query.id
-      }
-      this.listLoading = true
-      fetchChallenge(challengeQuery).then(response => {
-        const res = response.data
-        this.challengeInfo = res.data.list
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
-      })
-    },
     getProblemList() {
       this.listLoading = true
-      fetchProblemList().then(response => {
+      fetchAllProblems().then(response => {
         const res = response.data
-        this.problemList = res.data.list
+        this.problemList = res.datas[0]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -201,9 +198,9 @@ export default {
     },
     getChallengeList() {
       this.listLoading = true
-      fetchChallengeList().then(response => {
+      fetchAllChallenge().then(response => {
         const res = response.data
-        this.challengeList = res.data.list
+        this.challengeList = res.datas[0]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
@@ -211,24 +208,24 @@ export default {
     },
     addChallengeProblem(pid) { // 添加挑战题目
       var isExist = false
-      for (const item of this.challengeInfo.problems) { // 是否存在相同题目
-        if (item.problemID === pid) {
+      for (const item of this.challengeInfo.challengeProblems) { // 是否存在相同题目
+        if (item.problemId === pid) {
           isExist = true
         }
       }
       if (!isExist) {
         for (const item of this.problemList) { // 不存在相同题目则在题目列表中搜索题目
-          if (item.problemID === pid) {
-            this.problem.problemID = pid
+          if (item.problemId === pid) {
+            this.problem.problemId = pid
             this.problem.title = item.title // 获取信息
             this.problem.score = this.score
-            if (this.challengeInfo.problems.length === 0) { // 是否第一个插入 是就顺序order为1
+            if (this.challengeInfo.challengeProblems.length === 0) { // 是否第一个插入 是就顺序order为1
               this.problem.problemOrder = 1
             } else {
-              this.problem.problemOrder = this.challengeInfo.problems[this.challengeInfo.problems.length - 1].problemOrder + 1 // 否则按上一order+1
+              this.problem.problemOrder = this.challengeInfo.challengeProblems[this.challengeInfo.challengeProblems.length - 1].problemOrder + 1 // 否则按上一order+1
             }
             const data = Object.assign({}, JSON.parse(JSON.stringify(this.problem))) // 深复制题目信息push到题目列表中
-            this.challengeInfo.problems.push(data)
+            this.challengeInfo.challengeProblems.push(data)
           }
         }
       } else {
@@ -241,23 +238,25 @@ export default {
       }
     },
     removeChallengeProblem(index) { // 移除挑战题目
-      this.challengeInfo.problems.splice(index, 1)
+      this.challengeInfo.challengeProblems.splice(index, 1)
     },
-    addPreCondition(preID, score) { // 添加前置条件
+    addPreconditionBlock(preId, score) { // 添加前置条件
       var isExist = false
-      for (const item of this.challengeInfo.preConditionBlock) { // 是否存在相同模块
-        if (item.preConditionBlockID === preID) {
+      for (const item of this.challengeInfo.preconditionBlocks) { // 是否存在相同模块
+        if (item.blockId === preId) {
           isExist = true
         }
       }
+      console.log(this.precondition)
       if (!isExist) {
         for (const item of this.challengeList) { // 不存在相同模块则在模块列表中搜索模块
-          if (item.id === preID) {
-            this.preCondition.preConditionBlockID = preID
-            this.preCondition.preConditionBlockName = item.name // 获取信息
-            this.preCondition.preConditionBlockScore = score
-            const data = Object.assign({}, JSON.parse(JSON.stringify(this.preCondition))) // 深复制模块信息push到列表中
-            this.challengeInfo.preConditionBlock.push(data)
+          if (item.id === preId) {
+            this.precondition.blockId = preId
+            this.precondition.name = item.name // 获取信息
+            this.precondition.num = score
+            console.log(this.precondition)
+            const data = Object.assign({}, JSON.parse(JSON.stringify(this.precondition))) // 深复制模块信息push到列表中
+            this.challengeInfo.preconditionBlocks.push(data)
           }
         }
       } else {
@@ -269,19 +268,33 @@ export default {
         })
       }
     },
-    removePreCondition(index) { // 移除前置条件
-      this.challengeInfo.preConditionBlock.splice(index, 1)
+    removePreconditionBlock(index) { // 移除前置条件
+      this.challengeInfo.preconditionBlocks.splice(index, 1)
     },
     updateChallenge() {
-      updateChallenge(this.challengeInfo.id).then(response => {
-        const res = response.data
-        if (res.code === 10000) {
+      this.$refs.challengeInfo.validate(valid => {
+        if (valid) {
+          this.listLoading = true
+          updateChallenge(this.challengeInfo).then(response => {
+            const res = response.data
+            if (res.code === 10000) {
+              this.$message({
+                title: '成功',
+                message: '修改成',
+                type: 'success',
+                duration: 2000
+              })
+            }
+            this.goBack()
+          })
+        } else {
           this.$message({
-            title: '成功',
-            message: '修改成功',
-            type: 'success',
+            title: '错误',
+            message: '提交错误',
+            type: 'fail',
             duration: 2000
           })
+          return false
         }
       })
     },
@@ -301,5 +314,9 @@ export default {
   }
   .form-button {
     float: right;
+  }
+  .block-list-card, .problem-list-card {
+    width: 1100px;
+    margin-top: 30px;
   }
 </style>

@@ -8,6 +8,13 @@ export function fetchProblemList(query) {
   })
 }
 
+export function fetchAllProblems() {
+  return request({
+    url: '/admin/problems/all',
+    method: 'get'
+  })
+}
+
 export function fetchTempProblemList(query) {
   return request({
     url: '/problems/temp/list',
@@ -26,7 +33,7 @@ export function fetchProblem(problemId) {
 
 export function createProblem(data) {
   return request({
-    url: '/problems/create',
+    url: '/admin/problems/create',
     method: 'post',
     params: data
   })

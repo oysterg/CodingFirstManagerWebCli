@@ -2,39 +2,38 @@ import request from '@/utils/request'
 
 export function fetchChallengeList(query) {
   return request({
-    url: '/challenge/list',
+    url: '/admin/challenge/list',
     method: 'get',
     params: query
   })
 }
 
-export function fetchChallenge(id) {
+export function fetchAllChallenge() {
   return request({
-    url: '/challenge/detail',
-    method: 'get',
-    params: { id }
+    url: '/admin/challenge/all',
+    method: 'get'
   })
 }
 
 export function createChallenge(data) {
   return request({
-    url: '/challenge/create',
+    url: '/admin/challenge/create',
     method: 'post',
     data
   })
 }
 
-export function updateChallenge(id) {
+export function updateChallenge(data) {
   return request({
-    url: '/challenge/update',
-    method: 'put',
-    params: { id }
+    url: '/admin/challenge/update',
+    method: 'post',
+    data
   })
 }
 
 export function deleteChallenge(id) {
   return request({
-    url: '/challenge/delete',
+    url: '/admin/challenge/delete',
     method: 'delete',
     params: { id }
   })
@@ -42,7 +41,7 @@ export function deleteChallenge(id) {
 
 export function fetchChallengeProblems(query) {
   return request({
-    url: '/challenge/problem/list',
+    url: '/admin/challenge/problem/list',
     method: 'get',
     params: query
   })

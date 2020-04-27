@@ -64,7 +64,7 @@
       </el-table-column>
       <el-table-column
         label="标题"
-        :width="contestsQuery.kind === '自定义' ? '400' : '500'"
+        :width="contestsQuery.kind === '自定义' ? '400' : '488'"
         align="center"
       >
         <template slot-scope="{row}">

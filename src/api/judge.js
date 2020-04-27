@@ -2,25 +2,17 @@ import request from '@/utils/request'
 
 export function fetchJudgeList(query) {
   return request({
-    url: '/judge/list',
+    url: '/admin/judge/list',
     method: 'get',
     params: query
   })
 }
 
-export function fetchJudge(id) {
+export function fetchJudgeInfo(id) {
   return request({
-    url: '/judge/detail',
+    url: '/admin/judge/info',
     method: 'get',
     params: { id }
-  })
-}
-
-export function updateJudge(data) {
-  return request({
-    url: '/mall/update',
-    method: 'put',
-    data
   })
 }
 

@@ -53,7 +53,7 @@
           <span>{{ row.problemId }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标题" width="590" align="center">
+      <el-table-column label="标题" align="center">
         <template slot-scope="{row}">
           <el-link type="primary" @click="goProblemDetail(row)">{{ row.title }}</el-link>
         </template>
@@ -82,9 +82,10 @@
           <span>{{ row.visible === 0 ? '显示' : '隐藏' }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200" class-name="small-padding">
+      <el-table-column label="操作" align="center" width="250" class-name="small-padding">
         <template slot-scope="{row,$index}">
           <el-button size="mini" type="primary" @click="handleUpdate(row)">修改</el-button>
+          <el-button size="mini" type="warning">查看测试集</el-button>
           <el-button
             size="mini"
             type="danger"

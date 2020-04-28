@@ -26,7 +26,7 @@
           <span>{{ row.id }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="标签名称" width="800" align="center">
+      <el-table-column label="标签名称" align="center">
         <template slot-scope="{row, $index}">
           <el-link type="primary" @click="handleUpdate(row, $index)">{{ row.name }}</el-link>
         </template>

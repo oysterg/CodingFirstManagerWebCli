@@ -5,15 +5,17 @@
       <el-select v-model="honorRanksQuery.contestLevel" placeholder="比赛级别" filterable clearable class="filter-item" style="width: 130px">
         <el-option
           v-for="item in contestLevel"
-          :key="item"
-          :value="item"
+          :key="item.value"
+          :value="item.value"
+          :label="item.name"
         />
       </el-select>
-      <el-select v-model="honorRanksQuery.status" placeholder="奖项级别" filterable clearable class="filter-item" style="width: 130px">
+      <el-select v-model="honorRanksQuery.awardLevel" placeholder="奖项级别" filterable clearable class="filter-item" style="width: 130px">
         <el-option
           v-for="item in awardLevel"
-          :key="item"
-          :value="item"
+          :key="item.value"
+          :value="item.value"
+          :label="item.name"
         />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
@@ -27,15 +29,25 @@
     <el-table
       v-loading="listLoading"
       :data="honorRanks"
-      border
       fit
       highlight-current-row
       style="width: 98%;"
       @sort-change="sortChange"
     >
-      <el-table-column label="ID" prop="id" sortable="custom" align="center" width="80">
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-card class="box-card">
+              <el-form-item label="报名时间">
+                <span>{{ parseTime(props.row.registerTime) }}</span>
+              </el-form-item>
+            </el-card>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column label="获奖时间" prop="rewardDate" sortable="custom" align="center" width="120">
         <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
+          <span>{{ parseTime(row.rewardDate, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
       <el-table-column label="队员1" align="center">
@@ -80,7 +92,7 @@
       </el-table-column>
     </el-table>
 
-    <pagination v-show="total>0" :total="total" :page.sync="honorRanksQuery.page" :limit.sync="honorRanksQuery.limit" @pagination="getHonorRanks" />
+    <pagination v-show="total>0" :total="total" :page.sync="honorRanksQuery.pageNum" :limit.sync="honorRanksQuery.pageSize" @pagination="getHonorRanks" />
 
      <el-dialog
       title="提示"
@@ -100,6 +112,7 @@
 import { fetchHonorRank, deleteHonor } from '@/api/rank'
 import waves from '@/directive/waves' // waves指令
 import Pagination from '@/components/Pagination' // 基于el-pagination
+import { parseTime } from '@/utils'
 
 export default {
   name: 'HonorRank',
@@ -110,15 +123,35 @@ export default {
       currentRow: '',
       currentIndex: '',
       dialogVisible: false,
-      awardLevel: ['无奖项', '顽强拼搏奖', '优秀奖/鼓励奖', '铜奖', '银奖', '金奖', '一等奖', '二等奖', '三等奖'],
-      contestLevel: ['其他、不显示在奖项列表中', 'ACM省赛', 'ACM/ICPC区域赛', 'EC-Final', '世界总决赛', '全国蓝桥杯大赛', 'ACM全国邀请赛', '全国大学生程序设计竞赛'],
+      awardLevel: [
+        { name: '无奖项', value: -2 },
+        { name: '顽强拼搏奖', value: -1 },
+        { name: '优秀奖/鼓励奖', value: 0 },
+        { name: '铜奖', value: 1 },
+        { name: '银奖', value: 2 },
+        { name: '金奖', value: 3 },
+        { name: '一等奖', value: 4 },
+        { name: '二等奖', value: 5 },
+        { name: '三等奖', value: 6 }
+      ],
+      contestLevel: [
+        { name: '其他、不显示在奖项列表中', value: -1 },
+        { name: 'ACM省赛', value: 0 },
+        { name: 'ACM/ICPC区域赛', value: 1 },
+        { name: 'EC-Final', value: 2 },
+        { name: '世界总决赛', value: 3 },
+        { name: '全国蓝桥杯大赛', value: 4 },
+        { name: 'ACM全国邀请赛', value: 5 },
+        { name: '全国大学生程序设计竞赛', value: 6 },
+        { name: '三等奖', value: 7 }
+      ],
       honorRanks: null,
       total: 0,
       listLoading: true,
       honorRanksQuery: {
-        page: 1,
-        limit: 20,
-        sort: '+id',
+        pageNum: 1,
+        pageSize: 20,
+        sort: undefined,
         realName: undefined,
         awardLevel: undefined,
         contestLevel: undefined
@@ -129,26 +162,27 @@ export default {
     this.getHonorRanks()
   },
   methods: {
+    parseTime,
     getHonorRanks() {
       this.listLoading = true
       fetchHonorRank(this.honorRanksQuery).then(response => {
         const res = response.data
-        this.honorRanks = res.data.list
-        this.total = res.data.total
+        this.honorRanks = res.datas[0]
+        this.total = res.datas[1]
         setTimeout(() => {
           this.listLoading = false
         }, 1.5 * 1000)
       })
     },
     handleFilter() {
-      this.honorRanksQuery.page = 1
+      this.honorRanksQuery.pageNum = 1
       this.getHonorRanks()
     },
     clearFilter() {
       this.honorRanksQuery = {
-        page: 1,
-        limit: 20,
-        sort: '+id',
+        pageNum: 1,
+        pageSize: 20,
+        sort: undefined,
         realName: undefined,
         awardLevel: undefined,
         contestLevel: undefined
@@ -157,17 +191,10 @@ export default {
     },
     sortChange(data) {
       const { prop, order } = data
-      if (prop === 'id') {
-        this.sortByID(order)
+      if (prop === 'rewardDate') {
+        this.honorRanksQuery.sort = order
+        this.handleFilter()
       }
-    },
-    sortByID(order) {
-      if (order === 'ascending') {
-        this.honorRanksQuery.sort = '+id'
-      } else {
-        this.honorRanksQuery.sort = '-id'
-      }
-      this.handleFilter()
     },
     handleUpdate() {
     },

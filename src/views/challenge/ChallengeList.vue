@@ -24,9 +24,11 @@
       <el-table-column type="expand">
         <template slot-scope="props">
           <el-form label-position="left" inline class="demo-table-expand">
-            <el-form-item label="描述">
-              <span v-html="props.row.description"></span>
-            </el-form-item>
+            <el-card class="box-card">
+              <el-form-item label="描述">
+                <span v-html="props.row.description"></span>
+              </el-form-item>
+            </el-card>
           </el-form>
         </template>
       </el-table-column>

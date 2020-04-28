@@ -461,14 +461,26 @@ export const asyncRoutes = [
     ]
   },
   {
-    path: '/',
+    path: '/discuss',
     component: Layout,
+    name: 'Discussion',
+    meta: {
+      title: '讨论管理',
+      icon: 'wechat'
+    },
     children: [
       {
         path: 'Discussion',
         component: () => import('@/views/discussion/DiscussionList'),
         name: 'Discussion',
         meta: { title: '讨论管理', icon: 'wechat' }
+      },
+      {
+        path: 'DiscussionDetails',
+        component: () => import('@/views/discussion/DiscussionDetails'),
+        name: 'DiscussionDetails',
+        meta: { title: '讨论内容' },
+        hidden: true
       }
     ]
   },
